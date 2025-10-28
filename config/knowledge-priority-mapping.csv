@@ -1,0 +1,136 @@
+fileName,priority,legalDomain,knowledgeType,category
+01_薬事に関する資料.txt,1,薬機法,company_standard,common
+02_プラスで確認すべき薬事関連情報.txt,1,薬機法,company_standard,common
+03_景表法について.txt,1,景表法,company_standard,common
+04_特商法.txt,1,特商法,company_standard,common
+05_化粧品の効能効果（56項目）について.txt,1,薬機法,company_standard,common
+06_注釈の入れ方について.txt,1,薬機法,company_standard,common
+07_浸透の範囲について.txt,1,薬機法,company_standard,common
+08_「塗る・刺すの浸透比較」や「他社比較」の表現・コンテンツについて（ディープパッチシリーズ）.txt,1,景表法,company_standard,common
+09_専用表現についての規定と当社規定.txt,1,薬機法,company_standard,common
+10_パッチやシートの表現について.txt,1,薬機法,company_standard,common
+11_針の拡大図について.txt,1,薬機法,company_standard,common
+12_ビフォーアフターの写真に関する規定.txt,1,薬機法,company_standard,common
+13_ビフォーアフターの社内表示規定.txt,1,薬機法,company_standard,common
+14_加工画像やフリー素材を使用する際の注意点.txt,1,景表法,company_standard,common
+15_使用前後の写真の良い例.txt,1,薬機法,company_standard,common
+16_使用前後の写真のダメな例.txt,1,薬機法,company_standard,common
+17_使用前後の写真に関する媒体毎の留意事項.txt,1,薬機法,company_standard,common
+18_体験談について.txt,1,景表法,company_standard,common
+19_効能評価試験についての規定と社内規定.txt,1,薬機法,company_standard,common
+20_効能評価試験の良い例とダメな例.txt,1,薬機法,company_standard,common
+21_臨床データや実験例等の例示.txt,1,薬機法,company_standard,common
+22_シワ表現についての規定と社内規定.txt,1,薬機法,company_standard,common
+23_シミ訴求について.txt,1,薬機法,company_standard,common
+24_たるみ表現についての社内規定.txt,1,薬機法,company_standard,common
+25_クマ表現について.txt,1,薬機法,company_standard,common
+26_くすみ表現について.txt,1,薬機法,company_standard,common
+27_若々しい印象や若見え表現について.txt,1,薬機法,company_standard,common
+28_医薬部外品における化粧品の効能効果の表示.txt,1,薬機法,company_standard,common
+29_成分のフリーや不使用や無添加の違い.txt,1,薬機法,company_standard,common
+30_配合成分の略記号表示（EGF,FGFなど）.txt,1,薬機法,company_standard,common
+31_特定成分の特記表示.txt,1,薬機法,company_standard,common
+32_保証表現についての規定.txt,1,景表法,company_standard,common
+33_パッチテスト済みの表現.txt,1,薬機法,company_standard,common
+34_医薬関係者等の推せんについて.txt,1,薬機法,company_standard,common
+35_専門機関などの医療行為を想起させる表現の使い方について.txt,1,薬機法,company_standard,common
+36_「厚生労働省」「承認」などの名称を使用して訴求する場合について.txt,1,薬機法,company_standard,common
+37_エビデンス表記について.txt,1,景表法,company_standard,common
+38_リピート率について.txt,1,景表法,company_standard,common
+39_商品名に※が入っている商品の表記ルール.txt,1,薬機法,company_standard,common
+40_「全額返金保証」「実質無料」「実質0円」の表示ルール.txt,1,景表法,company_standard,common
+41_「お試し」「試供」等の表現について.txt,1,景表法,company_standard,common
+42_今ならお得に購入できる等の表現.txt,1,景表法,company_standard,common
+43_解約に関する条件の表示について.txt,1,特商法,company_standard,common
+44_ギネス世界記録™について.txt,1,景表法,company_standard,common
+45_ステマ規制（景表法）社内基準.txt,1,景表法,company_standard,common
+46_プレゼント企画のルールについて.txt,1,景表法,company_standard,common
+47_健康食品について.txt,1,薬機法,company_standard,common
+48_機能性表示食品に関する規定と社内ルール.txt,1,薬機法,company_standard,common
+49_雑誌・新聞コンテンツ取扱時の注意点.txt,1,景表法,company_standard,common
+50_東証プライム上場表記について.txt,1,景表法,company_standard,common
+51_アップセルページについて.txt,1,景表法,company_standard,common
+52_薬機法_化粧品医薬部外品.txt,1,薬機法,company_standard,common
+公正取引委員会_No.1表示に関する実態調査報告書_20080613.txt,3,景表法,government_guideline,common
+厚生労働省_医薬品の販売業等に関するＱ＆Ａについて（その２）_20140507.txt,2,薬機法,law,common
+厚生労働省_医薬品の販売業等に関するＱ＆Ａについて（その３）_20140709.txt,2,薬機法,law,common
+厚生労働省_医薬品の販売業等に関するＱ＆Ａについて_20140331.txt,2,薬機法,law,common
+厚生労働省_医薬品及び医薬部外品の消毒剤における特定の菌種、ウイルス種への有効性に係る情報提供の取扱いについて(薬生監麻発第225009号、薬生薬審発第225012号)_20220225.txt,2,薬機法,law,common
+厚生労働省_医薬品等適正広告基準の解説及び留意事項等について（薬生発0929第5号）_20170929.txt,2,薬機法,law,common
+厚生労働省_医薬品等適正広告基準の改正について（薬生発0929第4号）_20170929.txt,2,薬機法,law,common
+厚生労働省_化粧品の効能の範囲の改正について（薬食発0721第1号）_20110721.txt,2,薬機法,law,common
+厚生労働省_無承認無許可医薬品の指導取締りについて（昭和46年６月１日 薬発第476号）.txt,2,薬機法,law,common
+消費者庁_「おとり広告に関する表示」等の運用基準_20160401.txt,3,景表法,government_guideline,common
+消費者庁_「一般消費者が事業者の表示であることを判別することが困難である表示」の運用基準_20240328.txt,3,景表法,government_guideline,common
+消費者庁_「一般消費者に対する景品類の提供に関する事項の制限」の運用基準_19960216.txt,3,景表法,government_guideline,common
+消費者庁_「懸賞による景品類の提供に関する事項の制限」の運用基準について_20120628.txt,3,景表法,government_guideline,common
+消費者庁_「商品の原産国に関する不当な表示」の運用基準_19731016.txt,3,景表法,government_guideline,common
+消費者庁_No.1 表示に関する実態調査報告書_20240926.txt,3,景表法,government_guideline,common
+消費者庁_いわゆる『ダークパターン』に関する取引の実態調査（リサーチ・ディスカッション・ペーパー）_20250407.txt,3,景表法,government_guideline,common
+消費者庁_インターネット消費者取引に係る広告表示に関する景品表示法上の問題点及び留意事項_20220629.txt,3,景表法,government_guideline,common
+消費者庁_おとり広告に関する表示_19930428.txt,3,景表法,government_guideline,common
+消費者庁_ステルスマーケティングに関するQ&A_20230328.txt,3,景表法,government_guideline,common
+消費者庁_医療用医薬品業、医療機器業及び衛生検査所業における景品類の提供に関する事項の制限_20160401.txt,3,景表法,government_guideline,common
+消費者庁_一般消費者に対する景品類の提供に関する事項の制限_20160401.txt,3,景表法,government_guideline,common
+消費者庁_景品表示法における違反事例集（平成28年２月）_20160201.txt,3,景表法,government_guideline,common
+消費者庁_景品類の価額の算定基準（昭和５３年１１月３０日事務局長通達第９号）_19781130.txt,3,景表法,government_guideline,common
+消費者庁_景品類等の指定の告示の運用基準について_20240418.txt,3,景表法,government_guideline,common
+消費者庁_懸賞による景品類の提供に関する事項の制限_19960216.txt,3,景表法,government_guideline,common
+消費者庁_事業者が講ずべき景品類の提供及び表示の管理上の措置についての指針_20220629.txt,3,景表法,government_guideline,common
+消費者庁_商品の原産国に関する不当な表示_19731016.txt,3,景表法,government_guideline,common
+消費者庁_将来の販売価格を比較対照価格とする二重価格表示に対する執行方針_20201225.txt,3,景表法,government_guideline,common
+消費者庁_比較広告に関する景品表示法上の考え方_20160401.txt,3,景表法,government_guideline,common
+消費者庁_不当な価格表示についての景品表示法の考え方_20160401.txt,3,景表法,government_guideline,common
+消費者庁_不当景品類及び不当表示防止法第2条の規定により景品類及び表示を指定する件_20090828.txt,3,景表法,government_guideline,common
+消費者庁_不当景品類及び不当表示防止法第７条第２項の運用指針 ―不実証広告規制に関する指針― _20160401.txt,3,景表法,government_guideline,common
+消費者庁_不当景品類及び不当表示防止法第8条（課徴金納付命令の基本的要件）に関する考え方_20240418.txt,3,景表法,government_guideline,common
+08_「塗る・刺すの浸透比較」や「他社比較」の表現・コンテンツについて（ディープパッチシリーズ）.txt,1,景表法,company_standard,HA
+11_針の拡大図について.txt,1,薬機法,company_standard,HA
+25_クマ表現について.txt,1,薬機法,company_standard,HA
+26_くすみ表現について.txt,1,薬機法,company_standard,HA
+55_【薬事・景表法・社内ルールまとめ】『ヒアロディープパッチ』　.txt,1,薬機法,company_standard,HA
+55_【薬事・景表法・社内ルールまとめ】『ヒアロディープパッチ』.txt,1,薬機法,company_standard,HA
+化粧品公正取引協議会_化粧品の表示に関する公正競争規約_20240417.txt,3,薬機法,industry_guideline,HA
+日本化粧品工業連合会_化粧品等の適正広告ガイドライン（2020年版）_202005.txt,3,薬機法,industry_guideline,HA
+28_医薬部外品における化粧品の効能効果の表示.txt,1,薬機法,company_standard,SH
+77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt,1,薬機法,company_standard,SH
+日本OTC医薬品協会_OTC医薬品等の適正広告ガイドライン（2019年版）_改訂箇所結合版_20220617.txt,3,薬機法,industry_guideline,SH
+厚生労働層_医療機器の添付文書の記載要領に関するＱ＆Ａについて_20141031.txt,2,薬機法,law,common
+厚生労働省_一般用医薬品から医薬部外品に移行する品目の範囲について（薬食発第0716002号）_20040716.txt,2,薬機法,law,common
+厚生労働省_一般用医薬品のインターネット販売について_20140501.txt,2,薬機法,law,common
+厚生労働省_化粧品における特定成分の特記表示について（医薬監麻発0310第３号）_20250310.txt,2,薬機法,law,common
+厚生労働省_新指定医薬部外品の製造（輸入）承認基準等について（医薬発第２８３号）_19990312.txt,2,薬機法,law,common
+厚生労働省_昭和36年２月８日薬発第44号薬務局長通知_19610208.txt,2,薬機法,law,common
+厚生労働省_昭和37年９月６日薬発第464号薬務局長通知_19620906.txt,2,薬機法,law,common
+厚生労働省_無承認無許可医薬品の指導取締りについて（昭和46年６月１日 薬発第476号）.txt,2,薬機法,law,common
+厚生労働省‗医療機器の添付文書の記載要領（細則）について（薬食安発1002第１号）‗20221021.txt,2,薬機法,law,common
+薬事法ドットコム（仮）_OTC 医薬品等の広告自主申し合わせ.txt,3,薬機法,industry_guideline,common
+公正取引委員会_No.1表示に関する実態調査報告書_20080613.txt,3,景表法,government_guideline,common
+内閣府_事業者が講ずべき景品類の提供及び表示の管理上の措置についての指針（内閣府告示第74号）_20220629.txt,3,景表法,government_guideline,common
+消費者庁_No.1 表示に関する実態調査報告書_20240926.txt,3,景表法,government_guideline,common
+消費者庁_いわゆる『ダークパターン』に関する取引の実態調査（リサーチ・ディスカッション・ペーパー）_20250407.txt,3,景表法,government_guideline,common
+消費者庁_アフィリエイト広告等に関する検討会 報告書_20220215.txt,3,景表法,government_guideline,common
+消費者庁_インターネット消費者取引に係る広告表示に関する景品表示法上の問題点及び留意事項_20220629.txt,3,景表法,government_guideline,common
+消費者庁_スマートフォンにおける打消し表示に関する実態調査報告書_00000000.txt,3,景表法,government_guideline,common
+消費者庁_事業者が講ずべき景品類の提供及び表示の管理上の措置についての指針_20220629.txt,3,景表法,government_guideline,common
+消費者庁_令和６年度における景品表示法等の運用状況及び表示等の適正化への取組_20250529.txt,3,景表法,government_guideline,common
+消費者庁_健康食品に関する景品表示法及び健康増進法上の留意事項について_20160630.txt,3,景表法,government_guideline,common
+消費者庁_広告表示に接する消費者の視線に関する実態調査報告書 _00000000.txt,3,景表法,government_guideline,common
+消費者庁_打消し表示に関する実態調査報告書_00000000.txt,3,景表法,government_guideline,common
+消費者庁_景品に関するＱ＆Ａ.txt,3,景表法,government_guideline,common
+消費者庁_特定商取引に関する法律・解説_20230601.txt,2,特商法,law,common
+消費者庁_通信販売における返品特約の表示についてのガイドライン_20241119.txt,2,特商法,law,common
+消費者庁_通信販売の申込み段階における表示についてのガイドライン_20241119.txt,2,特商法,law,common
+消費者庁_電子メール広告をすることの承諾・請求の取得等に係る「容易に認識できるように表示していないこと」に係るガイドライン_20241119.txt,2,特商法,law,common
+消費者庁_インターネット通販における「意に反して契約の申込みをさせようとする行為」に係るガイドライン_20171201.txt,2,特商法,law,common
+消費者庁_特定商取引に関する法律第３条の２等の運用指針- 再勧誘禁止規定に関する指針 -_20241119.txt,2,特商法,law,common
+消費者庁_特定商取引に関する法律第６条の２等の運用指針- 不実勧誘・誇大広告等の規制に関する指針 -_20241119.txt,2,特商法,law,common
+経済産業省_改正特定商取引法における 「電子メール広告規制（オプトイン規制）」 のポイント_20081201.txt,2,特商法,law,common
+経済産業省_特定商取引に関する法律施行規則の一部を改正する省令_20081201.txt,2,特商法,law,common
+一般社団法人健康食品産業協議会ほか_ 「機能性表示食品」適正広告自主基準第2版_230605.txt,3,薬機法,industry_guideline,common
+厚生労働省_無承認無許可医薬品の指導取締りについて（昭和46年６月１日 薬発第476号）_19710601.txt,2,薬機法,law,common
+消費者庁_食品表示法の概要_20130600.txt,2,薬機法,law,common
+厚生労働省_無承認無許可医薬品の監視指導について（昭和62年９月22日 薬監第88号）_20150401.txt,2,薬機法,law,common
+消費者庁_食品表示法要綱_20130600.txt,2,薬機法,law,common
+日本コンタクトレンズ協会 _コンタクトレンズの広告自主基準_20210513.txt,3,薬機法,industry_guideline,common
+一般社団法人日本医療機器産業連合会企業倫理委員会_医療機器適正広告ガイド集_20161201.txt,3,薬機法,industry_guideline,common

@@ -1,0 +1,26 @@
+{
+  "id": "HA",
+  "name": "ヒアロディープパッチ",
+  "category": "化粧品",
+  "approvedEffects": "56項目（化粧品効能効果）",
+  "annotationRules": {
+    "エイジングケア": {
+      "required": true,
+      "template": "※年齢に応じた保湿のこと",
+      "severity": "medium",
+      "referenceKnowledge": "knowledge/common/23_エイジングケア表現について.txt"
+    },
+    "シワ": {
+      "required": true,
+      "template": "※乾燥による小じわを目立たなくする 効能評価試験済み",
+      "severity": "high",
+      "referenceKnowledge": "knowledge/HA/55_【薬事・景表法・社内ルールまとめ】『ヒアロディープパッチ』　.txt"
+    },
+    "くすみ": {
+      "required": true,
+      "template": "※乾燥や汚れなどによるもの",
+      "severity": "medium",
+      "referenceKnowledge": "knowledge/common/26_くすみ表現について.txt"
+    }
+  }
+}

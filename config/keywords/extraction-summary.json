@@ -1,0 +1,9 @@
+{
+  "totalFiles": 96,
+  "totalRules": 200,
+  "mandatoryKeywords": 23,
+  "prohibitedExpressions": 74,
+  "annotationRequired": 66,
+  "conditionalExpressions": 37,
+  "timestamp": "2025-10-18T06:35:44.576Z"
+}

@@ -1,0 +1,629 @@
+[
+  {
+    "keyword": "シワ",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "（例：「貼るだけで効果があるから」「シワが消えるから」）",
+    "source": "03_景表法について.txt",
+    "requiredAnnotation": "※パッチの物理的効果による",
+    "regulatoryCategory": "景表法"
+  },
+  {
+    "keyword": "浸透",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "| ◯時間で浸透 | 時間を特定していその時間内に浸透するという訴求は効能効果の保証となるため、事実（エビデンス）がある場合も薬機法上使用不可。 | 薬機法 |",
+    "source": "03_景表法について.txt",
+    "requiredAnnotation": "※角質層まで",
+    "regulatoryCategory": "景表法"
+  },
+  {
+    "keyword": "（",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "（※当社の商品で効能評価試験に合格している商品について：[効能評価試験済みの商品](https://kitanotatsujin.docbase.io/posts/2447990#効能評価試験済みの商品)をチェック）",
+    "source": "05_化粧品の効能効果（56項目）について.txt",
+    "requiredAnnotation": "当社の商品で効能評価試験に合格している商品について：[効能評価試験済みの商品](https://kitanotatsujin.docbase.io/posts/2447990#効能評価試験済みの商品)をチェック）",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "（49）ムシ歯を防ぐ（",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "（49）ムシ歯を防ぐ（※）。",
+    "source": "05_化粧品の効能効果（56項目）について.txt",
+    "requiredAnnotation": "）。",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "（50）歯を白くする（",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "（50）歯を白くする（※）。",
+    "source": "05_化粧品の効能効果（56項目）について.txt",
+    "requiredAnnotation": "）。",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "（51）歯垢を除去する（",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "（51）歯垢を除去する（※）。",
+    "source": "05_化粧品の効能効果（56項目）について.txt",
+    "requiredAnnotation": "）。",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "（54）歯のやにを取る（",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "（54）歯のやにを取る（※）。",
+    "source": "05_化粧品の効能効果（56項目）について.txt",
+    "requiredAnnotation": "）。",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "（55）歯石の沈着を防ぐ（",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "（55）歯石の沈着を防ぐ（※）。",
+    "source": "05_化粧品の効能効果（56項目）について.txt",
+    "requiredAnnotation": "）。",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "4",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "4 ※は使用時にブラッシングを行う歯みがき類",
+    "source": "05_化粧品の効能効果（56項目）について.txt",
+    "requiredAnnotation": "は使用時にブラッシングを行う歯みがき類",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "ヒアルロン酸",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "**OK例**　※「ヒアルロン酸」は保湿成分として　※「注入」は角質層まで",
+    "source": "06_注釈の入れ方について.txt",
+    "requiredAnnotation": "「注入」は角質層まで",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "**OK例**",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "**OK例**　※「ヒアルロン酸」は保湿成分として　※「注入」は角質層まで",
+    "source": "06_注釈の入れ方について.txt",
+    "requiredAnnotation": "「ヒアルロン酸」は保湿成分として　※「注入」は角質層まで",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "※ヒアルロン酸：保湿成分として",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "※ヒアルロン酸：保湿成分として　※注入：角質層まで",
+    "source": "06_注釈の入れ方について.txt",
+    "requiredAnnotation": "注入：角質層まで",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "**NG例**",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "**NG例**　※角質層まで　※保湿成分",
+    "source": "06_注釈の入れ方について.txt",
+    "requiredAnnotation": "角質層まで　※保湿成分",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "広告に注釈は不要",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "これは最低限のルールになります。ここで「広告に注釈は不要」となっていても、媒体によっては注釈が必要になる場合もございますので、各自出稿する媒体のルールも確認するようにしてください。",
+    "source": "06_注釈の入れ方について.txt",
+    "requiredAnnotation": "",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "クマ",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "**・効能効果に関して効果外や誤解を与えるような場合（クマ、物理的効果、配合目的等）**",
+    "source": "06_注釈の入れ方について.txt",
+    "requiredAnnotation": "※乾燥や古い角質によるくすみ、ハリが不足した暗い目の下",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "全額返金保証",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "**・全額返金保証**",
+    "source": "06_注釈の入れ方について.txt",
+    "requiredAnnotation": "※商品到着後15日以上25日以内に申請、決済手数料・送料は返金対象外",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "「",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "「※ひざ悩み：うるおい不足に関する悩み、浸透：角質層まで、ヒアルロン酸：保湿成分」",
+    "source": "06_注釈の入れ方について.txt",
+    "requiredAnnotation": "ひざ悩み：うるおい不足に関する悩み、浸透：角質層まで、ヒアルロン酸：保湿成分」",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "・浸透",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "・浸透※　※角質層まで",
+    "source": "07_浸透の範囲について.txt",
+    "requiredAnnotation": "※角質層まで",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "・真皮まで浸透",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "・真皮まで浸透※　※有効成分ナイアシンアミドが真皮まで浸透",
+    "source": "07_浸透の範囲について.txt",
+    "requiredAnnotation": "※有効成分ナイアシンアミドが真皮まで浸透",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "・肌奥まで浸透",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "・肌奥まで浸透※　※有効成分ナイアシンアミドが肌奥まで浸透",
+    "source": "07_浸透の範囲について.txt",
+    "requiredAnnotation": "※有効成分ナイアシンアミドが肌奥まで浸透",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "・爪に浸透",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "・爪に浸透※　※表面に",
+    "source": "07_浸透の範囲について.txt",
+    "requiredAnnotation": "※表面に",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "**",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "**※その他の医薬部外品については、化粧品と同様、浸透表現は角質層までしか言えません。**",
+    "source": "07_浸透の範囲について.txt",
+    "requiredAnnotation": "その他の医薬部外品については、化粧品と同様、浸透表現は角質層までしか言えません。**",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "※物理的皮膜効果",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "「※物理的皮膜効果」や「※メーキャップ効果」「※個人の感想です」の記載も不要になりました。",
+    "source": "13_ビフォーアフターの社内表示規定.txt",
+    "requiredAnnotation": "個人の感想です」の記載も不要になりました。",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "**【NG例】**",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "**【NG例】**※注釈がない場合のNG例です。",
+    "source": "13_ビフォーアフターの社内表示規定.txt",
+    "requiredAnnotation": "注釈がない場合のNG例です。",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "→化粧品・医薬部外品の体験談の注釈と「",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "→化粧品・医薬部外品の体験談の注釈と「※当社においていただいた体験談を、手紙をイメージして書き起こしました。」と注釈が記載されている",
+    "source": "18_体験談について.txt",
+    "requiredAnnotation": "当社においていただいた体験談を、手紙をイメージして書き起こしました。」と注釈が記載されている",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "シワ対策",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "「シワ対策」や「眉間のシワをピーン」などを表記する場合は全て注釈で「**※パッチの物理的効果による**」という注記を付近に表示してください。",
+    "source": "22_シワ表現についての規定と社内規定.txt",
+    "requiredAnnotation": "パッチの物理的効果による**」という注記を付近に表示してください。",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "**シミ対策",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "**シミ対策※**　**（※メラニンの生成を抑え、シミ・ソバカスを防ぐ）**",
+    "source": "23_シミ訴求について.txt",
+    "requiredAnnotation": "**　**（※メラニンの生成を抑え、シミ・ソバカスを防ぐ）**",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "シミ",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "**「シミ」というお悩みについて言う時は、「※メラニンが生成されることによるもの」という注記を必須とします。**",
+    "source": "23_シミ訴求について.txt",
+    "requiredAnnotation": "メラニンが生成されることによるもの」という注記を必須とします。**",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "**「シミ」というお悩みについて言う時は、「",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "**「シミ」というお悩みについて言う時は、「※メラニンが生成されることによるもの」という注記を必須とします。**",
+    "source": "23_シミ訴求について.txt",
+    "requiredAnnotation": "メラニンが生成されることによるもの」という注記を必須とします。**",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "NG例）シミ予防",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "NG例）シミ予防※ × 美白※ のW効果！（※メラニンの生成を抑え、シミ・そばかすを防ぐ）",
+    "source": "23_シミ訴求について.txt",
+    "requiredAnnotation": "× 美白※ のW効果！（※メラニンの生成を抑え、シミ・そばかすを防ぐ）",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "くすみ",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "「クマ」については、「くすみ」と同じくメーキャップ効果に関すること以外の表現は、化粧品の効果外となるため、表現はできない。そのため、メーキャップ以外の製品でクマを表現する場合は、クマの定義を[以下](https://kitanotatsujin.docbase.io/posts/2448057#%E3%82%AF%E3%83%9E%E3%81%A8%E3%81%84%E3%81%86%E8%A1%A8%E7%8F%BE%E3%82%92%E4%BD%BF%E3%81%84%E3%81%9F%E3%81%84%E6%99%82)のように明確にし、あくまでも化粧品の効能効果の範囲内であることが分かるようにすること。",
+    "source": "25_クマ表現について.txt",
+    "requiredAnnotation": "※乾燥や汚れなどによるもの",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "「くすみ」については、ガイドラインに基づき、「",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "「くすみ」については、ガイドラインに基づき、「※乾燥や汚れなどによるもの」等の注記を入れて、くすんで見える要因を明確にした上で化粧品の効能効果の範囲を逸脱しない範囲で表現すること。",
+    "source": "26_くすみ表現について.txt",
+    "requiredAnnotation": "乾燥や汚れなどによるもの」等の注記を入れて、くすんで見える要因を明確にした上で化粧品の効能効果の範囲を逸脱しない範囲で表現すること。",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "無香料",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "なお、「無香料」や「無着色」の表現については、その意味が、フリーなのか、不使用なのか、それとも全くニオイがしないのか、色が無いのかが、その意味するところが不明確であるので、可能な限り「フリー」、「不使用・無添加」で説明するようにしてください。その場合でも、例えば、「**「無香料」※　※原料由来の香がする場合があります。**」、「**「無着色」※　※原料由来の色が付いている場合があります。**」というように、原料由来の香や色がある旨を併記するようにしてください。",
+    "source": "29_成分のフリーや不使用や無添加の違い.txt",
+    "requiredAnnotation": "原料由来の色が付いている場合があります。**」というように、原料由来の香や色がある旨を併記するようにしてください。",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "・ヒアルロン酸",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "・ヒアルロン酸※たっぷり配合　（※潤いを与える成分）",
+    "source": "31_特定成分の特記表示.txt",
+    "requiredAnnotation": "たっぷり配合　（※潤いを与える成分）",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "・炭酸",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "・炭酸※泡の美容液　（※基剤）",
+    "source": "31_特定成分の特記表示.txt",
+    "requiredAnnotation": "泡の美容液　（※基剤）",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "・（ヒアロディープパッチのLPで）ヒアルロン酸",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "・（ヒアロディープパッチのLPで）ヒアルロン酸※をたっぷり配合　（※潤いを与える成分）",
+    "source": "31_特定成分の特記表示.txt",
+    "requiredAnnotation": "をたっぷり配合　（※潤いを与える成分）",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "商品名に",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "商品名に※が入っている商品の表記ルール",
+    "source": "39_商品名に※が入っている商品の表記ルール.txt",
+    "requiredAnnotation": "が入っている商品の表記ルール",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "商品名に「",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "商品名に「※」が入っている商品の表記ルールについてまとめたページです。",
+    "source": "39_商品名に※が入っている商品の表記ルール.txt",
+    "requiredAnnotation": "」が入っている商品の表記ルールについてまとめたページです。",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "## 商品名に",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "## 商品名に※が入っている商品とは",
+    "source": "39_商品名に※が入っている商品の表記ルール.txt",
+    "requiredAnnotation": "が入っている商品とは",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "**例）速乾",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "**例）速乾※キャシーミルク**",
+    "source": "39_商品名に※が入っている商品の表記ルール.txt",
+    "requiredAnnotation": "キャシーミルク**",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "**■商品名に",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "**■商品名に※を入れる必要が「ない」場合**",
+    "source": "39_商品名に※が入っている商品の表記ルール.txt",
+    "requiredAnnotation": "を入れる必要が「ない」場合**",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "▼以下のようなテキストリンク",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "▼以下のようなテキストリンク　※ただしリンク先のページに、商品名と共に注釈がある場合",
+    "source": "39_商品名に※が入っている商品の表記ルール.txt",
+    "requiredAnnotation": "ただしリンク先のページに、商品名と共に注釈がある場合",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "速乾",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "※ただし、メルマガにおいては商品名以外に「速乾」を強調して説明するような場合には、注釈として最下部に記載するなどの調整は必要。",
+    "source": "39_商品名に※が入っている商品の表記ルール.txt",
+    "requiredAnnotation": "※ただし、メルマガにおいては商品名以外に「速乾」を強調して説明するような場合には、注釈として最下部に記載するなどの調整は必要。",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "上記以外の場合は基本的に商品名にも",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "上記以外の場合は基本的に商品名にも※が必要となります。",
+    "source": "39_商品名に※が入っている商品の表記ルール.txt",
+    "requiredAnnotation": "が必要となります。",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "実質無料",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "「全額返金保証」「実質無料」「実質0円」の表示ルール",
+    "source": "40_「全額返金保証」「実質無料」「実質0円」の表示ルール.txt",
+    "requiredAnnotation": "※実質無料は全額返金保証を利用した場合による",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "売上世界一",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "売上世界一※1",
+    "source": "44_ギネス世界記録™について.txt",
+    "requiredAnnotation": "1",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "ギネス世界記録™認定 売上世界一",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "ギネス世界記録™認定 売上世界一※1",
+    "source": "44_ギネス世界記録™について.txt",
+    "requiredAnnotation": "1",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "・該当コンテンツに「",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "・該当コンテンツに「※当社から依頼をし、いただいた",
+    "source": "45_ステマ規制（景表法）社内基準.txt",
+    "requiredAnnotation": "当社から依頼をし、いただいた",
+    "regulatoryCategory": "景表法"
+  },
+  {
+    "keyword": "・該当コンテンツに**「",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "・該当コンテンツに**「※当社から依頼したPR動画を編集して",
+    "source": "45_ステマ規制（景表法）社内基準.txt",
+    "requiredAnnotation": "当社から依頼したPR動画を編集して",
+    "regulatoryCategory": "景表法"
+  },
+  {
+    "keyword": "殺菌",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "・神すぎる殺菌力|",
+    "source": "52_薬機法_化粧品医薬部外品.txt",
+    "requiredAnnotation": "※消毒の作用機序として",
+    "regulatoryCategory": "薬機法"
+  },
+  {
+    "keyword": "単に成分を補給するという表現であれば、「",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "単に成分を補給するという表現であれば、「※角質層まで」の注釈をいれればOK。 |",
+    "source": "52_薬機法_化粧品医薬部外品.txt",
+    "requiredAnnotation": "角質層まで」の注釈をいれればOK。 |",
+    "regulatoryCategory": "薬機法"
+  },
+  {
+    "keyword": "試験問題作成に関する手引き（平成26年３月）",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "**（答）**含まれる。登録販売者試験の出題事項については、「試験問題作成に関する手引き（平成26年３月）」※を参照されたい。",
+    "source": "厚生労働省_医薬品の販売業等に関するＱ＆Ａについて_20140331.txt",
+    "requiredAnnotation": "を参照されたい。",
+    "regulatoryCategory": "薬機法"
+  },
+  {
+    "keyword": "*",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "*※1 「懸賞による景品類の提供に関する事項の制限」（昭和五十二年公正取引委員会告示第三号。以下「告示」という。）第一項第一号の「くじその他偶然性を利用して定める方法」についてこれを例示すると、次のとおりである。**",
+    "source": "消費者庁_「懸賞による景品類の提供に関する事項の制限」の運用基準について_20120628.txt",
+    "requiredAnnotation": "1 「懸賞による景品類の提供に関する事項の制限」（昭和五十二年公正取引委員会告示第三号。以下「告示」という。）第一項第一号の「くじその他偶然性を利用して定める方法」についてこれを例示すると、次のとおりである。**",
+    "regulatoryCategory": "景表法"
+  },
+  {
+    "keyword": "事業者の表示",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "A:従業員が、自身のSNSアカウントを利用して、自社の商品を使用した感想を投稿したとしても、それだけで直ちに、その投稿が告示に違反する(「事業者の表示」(※)に当たる)と判断されることはありません。",
+    "source": "消費者庁_ステルスマーケティングに関するQ&A_20230328.txt",
+    "requiredAnnotation": ")に当たる)と判断されることはありません。",
+    "regulatoryCategory": "景表法"
+  },
+  {
+    "keyword": "(",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "(※)「事業者の表示」とは、顧客を誘引するための手段として、事業者が自己の供給する商品・サービスの品質、規格、その他の内容や価格等の取引条件について行う表示を指します。",
+    "source": "消費者庁_ステルスマーケティングに関するQ&A_20230328.txt",
+    "requiredAnnotation": ")「事業者の表示」とは、顧客を誘引するための手段として、事業者が自己の供給する商品・サービスの品質、規格、その他の内容や価格等の取引条件について行う表示を指します。",
+    "regulatoryCategory": "景表法"
+  },
+  {
+    "keyword": "刺す",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "| <span style=\"color: #d61b09\">刺す化粧品・刺すヒアルロン酸・刺すエイジングケア・刺すスキンケア・刺す美容液</span> | 商標登録済み（当社のみで言える文言）HLPで使用する場合は商標マーク®が必要です。また、これらの商標登録済みの文言にも「刺す」や「ヒアルロン酸」「エイジングケア」には注釈が必要なので、「刺す＊ヒアルロン酸※」＊角質層まで　※保湿成分として　、「刺す＊エイジングケア※」＊角質層まで　※年齢に応じたケア　等と記載して下さい。 |薬機法  |",
+    "source": "55_【薬事・景表法・社内ルールまとめ】『ヒアロディープパッチ』　.txt",
+    "requiredAnnotation": "年齢に応じたケア　等と記載して下さい。 |薬機法  |",
+    "allowedProducts": [
+      "HA"
+    ],
+    "regulatoryCategory": "薬機法"
+  },
+  {
+    "keyword": "エイジングケア",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "| <span style=\"color: #d61b09\">貼るエイジングケア・貼るスキンケア</span> | 商標登録済み（当社のみで言える文言）HLPで使用する場合は商標マーク®が必要です。また商標登録済みの文言にも「エイジングケア」には注釈が必要なので、「貼るエイジングケア※」※年齢に応じたケア　と記載して下さい。 |薬機法  |",
+    "source": "55_【薬事・景表法・社内ルールまとめ】『ヒアロディープパッチ』　.txt",
+    "requiredAnnotation": "年齢に応じたケア　と記載して下さい。 |薬機法  |",
+    "allowedProducts": [
+      "HA"
+    ],
+    "regulatoryCategory": "薬機法"
+  },
+  {
+    "keyword": "ハリ不足",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "| <span style=\"color:#d70910;\">よぼつき</span> | 下記①②を満たす場合に限り表示OK。<br>①注釈等において「ハリ不足」と明記すること。<br>②前後文脈を通じて「年齢に応じたケア」というニュアンスを出すこと。<br/>OK例）<br/>・「よぼつき※が気になる目の下にハリを与えるエイジングケア※1　※よぼつき：ハリ不足のこと　※1エイジングケア：年齢に応じたケア」 |薬機法  |",
+    "source": "55_【薬事・景表法・社内ルールまとめ】『ヒアロディープパッチ』　.txt",
+    "requiredAnnotation": "1エイジングケア：年齢に応じたケア」 |薬機法  |",
+    "allowedProducts": [
+      "HA"
+    ],
+    "regulatoryCategory": "薬機法"
+  },
+  {
+    "keyword": "※乾燥や古い角質によるくすみ、ハリが不足した暗い目の下",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "| <span style=\"color:#d70910;\">どんより目の下・暗い目の下</span> | 下記OK／NGの基準に沿って判断。<br>クマの別表現として表示OK。この場合も、「※乾燥や古い角質によるくすみ、ハリが不足した暗い目の下」と注釈を入れること。注釈がない、注釈内容が異なる場合には、化粧品の56項目の効能効果以外の効能効果を暗示させる可能性があるため、NG。<br><span style=\"color:#1453c6;\">**＜OK＞<br/>**</span>当社が定義付けているクマ（乾燥や古い角質によるくすみ、ハリが不足した暗い目の下）の別表現としての「どんより目の下」「暗い目の下」のことであると受け取れ、「どんより」や「暗い」に対して「※乾燥や古い角質によるくすみ、ハリが不足した暗い目の下」と注釈を記載している場合。<br/>例）<br>・「目の下どんより※　※乾燥や古い角質によるくすみ、ハリが不足した暗い目の下」<br/>→どんよりに対して注釈の記載があるため。<br/><br><span style=\"color:#d70910;\">**＜NG＞<br/>**</span>注釈の記載がない場合や、注釈を記載していても、当社が定義付けているクマ（乾燥や古い角質によるくすみ、ハリが不足した暗い目の下）とは別の意味のお悩みを暗示させている場合。<br/>例）<br>・「目の下どんより（注釈なし）」<br>→注釈がないため、どんよりした目の下が血行不良や寝不足、色素沈着、たるみ等によるお悩みを暗示させる可能性があるため、効果外。<br>・「どんより※、ハリ不足、乾燥などの目の下ケアに　※乾燥や古い角質によるくすみ、ハリが不足した暗い目の下」<br>→どんよりは「乾燥や古い角質によるくすみ、ハリが不足した暗い目の下」と注釈で定義付けているにも関わらず、どんよりと並べてハリ不足や乾燥等を表示すると、どんよりした目の下がハリ不足や乾燥とは別の、血行不良や寝不足、色素沈着、たるみ等が原因による悩みであると暗示させ、効果外。<br/><br/><span style=\"color:#098117;\">**＜OKかNGか都度判断＞**</span><br>「目の下どんより画像」<br><span style=\"color:#1453c6;\">**OK**</span>：乾燥や古い角質によるくすみ、ハリが不足した暗い目の下の範囲と受け取れるもの<br><span style=\"color:#d70910;\">**NG**</span>：血行不良や寝不足、色素沈着、たるみ等によってどんよりしているように受け取れるもの |薬機法  |",
+    "source": "55_【薬事・景表法・社内ルールまとめ】『ヒアロディープパッチ』　.txt",
+    "requiredAnnotation": "乾燥や古い角質によるくすみ、ハリが不足した暗い目の下」<br>→どんよりは「乾燥や古い角質によるくすみ、ハリが不足した暗い目の下」と注釈で定義付けているにも関わらず、どんよりと並べてハリ不足や乾燥等を表示すると、どんよりした目の下がハリ不足や乾燥とは別の、血行不良や寝不足、色素沈着、たるみ等が原因による悩みであると暗示させ、効果外。<br/><br/><span style=\"color:#098117;\">**＜OKかNGか都度判断＞**</span><br>「目の下どんより画像」<br><span style=\"color:#1453c6;\">**OK**</span>：乾燥や古い角質によるくすみ、ハリが不足した暗い目の下の範囲と受け取れるもの<br><span style=\"color:#d70910;\">**NG**</span>：血行不良や寝不足、色素沈着、たるみ等によってどんよりしているように受け取れるもの |薬機法  |",
+    "allowedProducts": [
+      "HA"
+    ],
+    "regulatoryCategory": "薬機法"
+  },
+  {
+    "keyword": "ハリを与える",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "| <span style=\"color:#d70910;\">補充</span> | 「ハリを与える」や「うるおいを与える」といった化粧品の56項目の効能効果についての「補充」であると受け取れる場合は表示OK。なお、補充には「※角質層まで」の注釈が必要。<br>OK例）<br>・肌に潤いを補充※　※補充：角質層まで<br>・肌のハリ不足にヒアルロン酸※を補充※1　※ヒアルロン酸：ハリを与える成分　※1補充：角質層まで |薬機法  |",
+    "source": "55_【薬事・景表法・社内ルールまとめ】『ヒアロディープパッチ』　.txt",
+    "requiredAnnotation": "1補充：角質層まで |薬機法  |",
+    "allowedProducts": [
+      "HA"
+    ],
+    "regulatoryCategory": "薬機法"
+  },
+  {
+    "keyword": "汚い",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "| <span style=\"color:#d70910;\">加齢を表す表現（汚い、オジサン化等）について</span> | 加齢の概念を表す言葉として「汚い」「オジサン化」といった表現を表示する際、「老け見え」や「年齢感」と比較すると具体性が高く感じ取られる場合があるため、「※ハリが不足した状況」や「※うるおいやハリ・弾力が不足した状態」という注釈を記載すること。ただし、「オジサン化に逆らう」など文脈によって若返りや老化防止を想起させるような表現は、たとえ注釈で補足説明していても効果外となるため、引き続き使用NG。<br/><span style=\"color:#1453c6;\">**＜OK例＞**</span><br/>・目の下オジサン化※対策　※オジサン化：うるおいやハリ・弾力が不足した状態<br/><span style=\"color:#d70910;\">**＜NG例＞**</span><br/>・目の下オジサン化※を阻止　※オジサン化：うるおいやハリ・弾力が不足した状態<br/>→オジサン化を阻止という表現は、老化防止を想起させ効果外のため 。 | 薬機法 |",
+    "source": "55_【薬事・景表法・社内ルールまとめ】『ヒアロディープパッチ』　.txt",
+    "requiredAnnotation": "オジサン化：うるおいやハリ・弾力が不足した状態<br/>→オジサン化を阻止という表現は、老化防止を想起させ効果外のため 。 | 薬機法 |",
+    "allowedProducts": [
+      "HA"
+    ],
+    "regulatoryCategory": "薬機法"
+  },
+  {
+    "keyword": "注射が怖い",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "| <span style=\"color: #d61b09\">ヒアルロン酸注射が怖い人へ・美容整形は怖いと思ってる人へ</span> | 「注射が怖い」、「手術が嫌」など、医療行為的な説明と不安感を併せて、それらが嫌ならHDを進めますというような訴求は、診療行為への誹謗中傷や、不安感を与える広告、また、HDに注射や手術などで得られる効果があると受け取られるおそれなどがあるのでNG。訴求する場合は、不安感を与える用語は避け、「ヒアルロン酸注射はまだちょっと‥」などとし、「先ずは、試しにヒアルロン酸パッチから、、、」というような感じで訴求する場合はOK。（※①医療行為を否定（機会を失わせる）に受け取られないこと　②医療行為の内容と訴求する化粧品の成分などが繋がるように説明すること　これらを満たすことで、医療行為の効果があると受け取られないようにし、また、診療機会を失わせる広告と受け取られないようして薬機法のリスクを減らす）",
+    "source": "55_【薬事・景表法・社内ルールまとめ】『ヒアロディープパッチ』　.txt",
+    "requiredAnnotation": "①医療行為を否定（機会を失わせる）に受け取られないこと　②医療行為の内容と訴求する化粧品の成分などが繋がるように説明すること　これらを満たすことで、医療行為の効果があると受け取られないようにし、また、診療機会を失わせる広告と受け取られないようして薬機法のリスクを減らす）",
+    "allowedProducts": [
+      "HA"
+    ],
+    "regulatoryCategory": "薬機法"
+  },
+  {
+    "keyword": "10秒",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "| <span style=\"color:#d70910;\">10秒で塗れる<br>10秒で簡単</span> | 使用方法としての簡便性と受け取れる場合の「10秒」訴求は可。訴求する際は、前後関係で使用方法としての簡便性であることが分かる説明にするか、注釈「※塗布してから塗り終わるまでの時間」を記載すること。ただし、注記があっても、10秒間だけ塗っていれば殺菌消毒できると受け取れる場合は、効果の保証となるため不可。 | 薬機法 |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "requiredAnnotation": "塗布してから塗り終わるまでの時間」を記載すること。ただし、注記があっても、10秒間だけ塗っていれば殺菌消毒できると受け取れる場合は、効果の保証となるため不可。 | 薬機法 |",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法"
+  },
+  {
+    "keyword": "無毒/無毒化",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "| <span style=\"color:#d70910;\">無毒<br>無毒化</span> | 「無毒/無毒化」表現の考え方は以下①②のとおりとする。<br>**①**<mark>効能効果である「消毒」という意味での表現はOK。</mark><br>※無毒/無毒化は、殺菌作用により、人体に悪影響（有害）を及ぼさない菌量や菌の毒量を減らし無害/無毒/無毒化/消毒（効能効果）すること。<br>OK例）<br>・爪周りを殺菌して無毒化する<br>→爪の周りを殺菌（作用）して、結果、無毒化する（消毒/効果）<br>・爪周りに塗って菌を無毒化<br>**②**<mark>作用機序としての表現はNG。（無毒/無毒化は①の考え方のとおり効能効果のため）</mark><br>※本製品は、殺菌作用の結果、消毒（無毒化）することが効果です。そのため、無毒化作用の結果として、爪周りの症状を治療する解毒剤/治療薬と受け取れないようにすること。また、「無毒」だけを表示し、承認された効能効果そのものが「無毒」や、作用機序が「無毒」であると受けとられないようにすること。（「無毒」だけを表示した訴求は、「解毒剤」、「治療薬」などとなり効果外や作用外となるおそれがあるため。）<br>NG例）<br>・無毒化作用で爪周りをキレイに！<br>→無毒化（作用）して、きれいな爪周りにする（効果）となり、解毒剤や治療薬と受け取れる<br>・無毒化ジェル<br>→無毒だけを表示しており、無毒そのものが承認された効能効果であると受け取れ効果外 | 薬機法 |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "requiredAnnotation": "本製品は、殺菌作用の結果、消毒（無毒化）することが効果です。そのため、無毒化作用の結果として、爪周りの症状を治療する解毒剤/治療薬と受け取れないようにすること。また、「無毒」だけを表示し、承認された効能効果そのものが「無毒」や、作用機序が「無毒」であると受けとられないようにすること。（「無毒」だけを表示した訴求は、「解毒剤」、「治療薬」などとなり効果外や作用外となるおそれがあるため。）<br>NG例）<br>・無毒化作用で爪周りをキレイに！<br>→無毒化（作用）して、きれいな爪周りにする（効果）となり、解毒剤や治療薬と受け取れる<br>・無毒化ジェル<br>→無毒だけを表示しており、無毒そのものが承認された効能効果であると受け取れ効果外 | 薬機法 |",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法"
+  },
+  {
+    "keyword": "行き渡る",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "|<span style=\"color:#d70910;\">爪の表面全体に「行き渡る」という意味合いでの浸透表現</span>  |「浸透」が爪の表面全体に「行き渡る」という意味合いで使用されていることが広告全体から把握できれば下記の表現はOKとする。<br>「爪に浸透※　※表面に」<br>「爪に浸透※　※トッププレート表面に」<br>「爪に浸透※　※背爪表面に」<br>「爪に浸透※　※背爪表面に浸透」<br>「爪に浸透※　※背爪表面に浸透」<br>「爪ぎわから爪表面に浸透」<br>「浸透※　※浸透：爪表面に」  |薬機法<br>景表法|",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "requiredAnnotation": "浸透：爪表面に」  |薬機法<br>景表法|",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法"
+  },
+  {
+    "keyword": "菌が存在して不潔な状態の爪周りを消毒することでキレイにする",
+    "category": "annotation-required",
+    "severity": "high",
+    "description": "|<span style=\"color:#d70910;\">激変</span>  |前後関係や文脈によって「菌が存在して不潔な状態の爪周りを消毒することでキレイにする」といった意味で受け取れる「激変」表現は表示OKとする。<br/><span style=\"color:#1453c6;\">**＜OK例＞**</span><br/>「汚くなった爪<span style=\"font-size:80%;\">※</span>が特殊な殺菌<span style=\"font-size:80%;\">※1</span>ジェルで激変　<span style=\"font-size:80%;\">※汚い：菌で不潔な状態　※1 殺菌：消毒の作用機序として</span>」<br/>「不潔な爪が特殊な殺菌<span style=\"font-size:80%;\">※</span>ジェルで激変　<span style=\"font-size:80%;\">※殺菌：消毒の作用機序として</span>」<br/><span style=\"color:#d70910;\">**＜NG例＞**</span><br/>「汚くなった爪が特殊な殺菌<span style=\"font-size:80%;\">※</span>ジェルで激変　<span style=\"font-size:80%;\">※殺菌：消毒の作用機序として</span>」<br/>→汚くなった爪に対して説明がないため、見た目が汚い状態の爪のことと受け取れ、「見た目が汚い状態の爪が殺菌ジェルで激変＝爪水虫が改善」という暗示になり効果外のため。 |  薬機法 |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "requiredAnnotation": "殺菌：消毒の作用機序として</span>」<br/>→汚くなった爪に対して説明がないため、見た目が汚い状態の爪のことと受け取れ、「見た目が汚い状態の爪が殺菌ジェルで激変＝爪水虫が改善」という暗示になり効果外のため。 |  薬機法 |",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法"
+  }
+]

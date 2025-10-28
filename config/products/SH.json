@@ -1,0 +1,19 @@
+{
+  "id": "SH",
+  "name": "クリアストロングショット アルファ",
+  "category": "新指定医薬部外品",
+  "approvedEffects": "手指・皮膚の洗浄・消毒",
+  "activeIngredient": "ベンザルコニウム塩化物",
+  "annotationRules": {
+    "殺菌": {
+      "required": true,
+      "template": "※殺菌は消毒の作用機序として",
+      "severity": "high"
+    },
+    "10秒": {
+      "required": true,
+      "template": "※塗布してから塗り終わるまでの時間",
+      "severity": "medium"
+    }
+  }
+}

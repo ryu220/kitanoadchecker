@@ -1,0 +1,88 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+*.log
+
+# Next.js
+/.next/
+/out/
+.next
+out
+
+# Production
+/build
+dist
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Local env files
+.env
+.env*.local
+.env.development
+.env.production
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ChromaDB
+chroma-data/
+.cache/
+
+# Temporary files
+*.tmp
+*.temp
+.temp/
+
+# Logs
+logs/
+*.log
+
+# OS
+Thumbs.DB
+.DS_Store
+
+# Backup files
+*.backup
+*.bak
+backup_*/
+*.backup_*/
+
+# Test files (excluding from delivery)
+test-*.js
+test-*.ts
+test-*.json
+*-test.js
+*-test.ts
+
+# Development files (excluding from delivery)
+.claude/
+.miyabi.yml
+CLAUDE.md
+
+# Build outputs
+.next/
+out/
+build/

@@ -1,0 +1,1529 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { Segment, SegmentEvaluation } from '@/lib/types-v2';
+import { ProductId } from '@/lib/types';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { validateKnowledgeExcerpt, detectFabricatedContent, logValidationResult } from '@/lib/knowledge-excerpt-validator';
+import { createEmbeddingService } from '@/lib/embedding-service';
+import { createChromaVectorDB } from '@/lib/vector-db/chroma-db';
+import { createRAGSearchService } from '@/lib/rag-search';
+import { createNGKeywordValidator } from '@/lib/ng-keyword-validator';
+import { analyzePeriodExpressions, validatePeriodConsistency } from '@/lib/period-expression-analyzer';
+import { validateGuinnessRecord } from '@/lib/guinness-record-validator';
+import { getPromptCache, getRAGCache } from '@/lib/cache';
+
+// タイムアウト延長: 長文処理対応（Issue #17）
+export const maxDuration = 60;
+
+// Initialize global caches for performance optimization
+const promptCache = getPromptCache();
+const ragCache = getRAGCache();
+
+/**
+ * Request schema for evaluation API
+ */
+const evaluateRequestSchema = z.object({
+  segments: z.array(z.object({
+    id: z.string(),
+    text: z.string(),
+    type: z.enum(['claim', 'explanation', 'evidence', 'cta', 'disclaimer']),
+    position: z.object({
+      start: z.number(),
+      end: z.number(),
+      line: z.number().optional(),
+    }),
+    importance: z.number().min(0).max(1).optional(),
+    relatedSegments: z.array(z.string()).optional(),
+  })),
+  productId: z.enum(['HA', 'SH']),
+  apiKey: z.string().min(10),
+  fullText: z.string().optional(), // Full advertisement text for context
+  knowledgeContext: z.string().optional(),
+});
+
+type EvaluateRequest = z.infer<typeof evaluateRequestSchema>;
+
+/**
+ * POST /api/v2/evaluate
+ * RAG-based legal compliance evaluation API
+ *
+ * Evaluates advertisement segments against legal knowledge base
+ * including 薬機法 (Pharmaceutical Affairs Law), 景表法 (Act against Unjustifiable Premiums
+ * and Misleading Representations), and internal company standards.
+ *
+ * @param segments - Array of segments to evaluate
+ * @param productId - Product ID (HA or SH)
+ * @param apiKey - Gemini API key
+ * @param knowledgeContext - Optional pre-loaded knowledge context
+ *
+ * @returns Array of segment evaluations with violations and corrections
+ */
+export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+
+  try {
+    // Parse and validate request body
+    const body = await request.json();
+    console.log('[Evaluate API] Received request with', body.segments?.length || 0, 'segments');
+
+    const validatedInput: EvaluateRequest = evaluateRequestSchema.parse(body);
+
+    // Validate API key format
+    if (!validatedInput.apiKey || validatedInput.apiKey.length < 10) {
+      return NextResponse.json({
+        success: false,
+        error: '無効なGemini APIキーです。有効なAPIキーを指定してください。',
+      }, { status: 400 });
+    }
+
+    // Load knowledge context if not provided
+    let knowledgeContext = validatedInput.knowledgeContext;
+    if (!knowledgeContext) {
+      const combinedSegmentText = validatedInput.segments.map(s => s.text).join('\n');
+
+      // Try to get from cache first (PERFORMANCE OPTIMIZATION)
+      const cachedKnowledge = ragCache.get(combinedSegmentText, validatedInput.productId);
+
+      if (cachedKnowledge) {
+        console.log('[Evaluate API] 🚀 RAG CACHE HIT! Using cached knowledge context');
+        knowledgeContext = cachedKnowledge;
+      } else {
+        console.log('[Evaluate API] RAG Search: Cache miss, performing search...');
+        console.log('[Evaluate API] RAG Search: Initializing services...');
+
+        const embeddingService = createEmbeddingService(validatedInput.apiKey);
+        const vectorDB = createChromaVectorDB({
+          url: process.env.CHROMA_URL || 'http://localhost:8000',
+          apiKey: validatedInput.apiKey, // Auto-load knowledge with API key
+        });
+
+        await vectorDB.connect();
+        const ragSearchService = createRAGSearchService(embeddingService, vectorDB);
+
+        // セマンティック検索で関連ナレッジを取得
+        console.log('[Evaluate API] RAG Search: Searching for', validatedInput.segments.length, 'segments...');
+
+        const ragResult = await ragSearchService.search(combinedSegmentText, {
+          topK: 20,
+          minSimilarity: 0.5,
+          productId: validatedInput.productId,
+          debug: true,
+        });
+
+        knowledgeContext = ragResult.relevantKnowledge;
+
+        console.log('[Evaluate API] RAG Search: Found', ragResult.searchResults.length, 'relevant chunks');
+        console.log('[Evaluate API] RAG Search: Knowledge context size:', knowledgeContext.length, 'chars');
+
+        // Cache the result for future requests (30 minutes TTL)
+        ragCache.set(combinedSegmentText, validatedInput.productId, knowledgeContext, ragResult.searchResults.length, 1800);
+        console.log('[Evaluate API] 💾 RAG result cached for 30 minutes');
+
+        // Vector DB接続を閉じる
+        await vectorDB.close();
+      }
+    } else {
+      console.log('[Evaluate API] Using provided knowledge context:', knowledgeContext.length, 'chars');
+    }
+
+    // Initialize Gemini client with JSON mode
+    // Changed to gemini-2.5-flash-lite (正式版、テキスト生成用)
+    // Note: gemini-2.0-flash-exp は画像生成用のため絶対に使用禁止
+    const genAI = new GoogleGenerativeAI(validatedInput.apiKey);
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash-lite',
+      generationConfig: {
+        responseMimeType: 'application/json',
+        temperature: 0.0, // Zero temperature for maximum consistency and verbatim quoting
+      },
+    });
+
+    // Evaluate segments with controlled concurrency (max 3 parallel)
+    const evaluations: SegmentEvaluation[] = [];
+    const batchSize = 1; // Sequential processing to avoid rate limits
+
+    for (let i = 0; i < validatedInput.segments.length; i += batchSize) {
+      const batch = validatedInput.segments.slice(i, i + batchSize);
+      console.log(`[Evaluate API] Processing batch ${i / batchSize + 1} (${batch.length} segments)`);
+
+      const batchPromises = batch.map(segment =>
+        evaluateSegmentWithRetry(
+          segment as Segment,
+          validatedInput.productId,
+          knowledgeContext!,
+          model,
+          validatedInput.fullText
+        )
+      );
+
+      const batchResults = await Promise.allSettled(batchPromises);
+
+      // Process results
+      for (const result of batchResults) {
+        if (result.status === 'fulfilled') {
+          evaluations.push(result.value);
+        } else {
+          console.error('[Evaluate API] Segment evaluation failed:', result.reason);
+          // Add error result
+          evaluations.push({
+            segmentId: batch[batchResults.indexOf(result)].id,
+            compliance: false,
+            violations: [{
+              type: 'その他',
+              severity: 'high',
+              description: `評価エラー: ${result.reason.message}`,
+              referenceKnowledge: {
+                file: 'system',
+                excerpt: 'エラーが発生しました',
+              },
+              correctionSuggestion: '再評価が必要です',
+            }],
+            evaluatedAt: new Date().toISOString(),
+          });
+        }
+      }
+
+      // Add adaptive delay between batches to avoid rate limits
+      if (i + batchSize < validatedInput.segments.length) {
+        const adaptiveDelay = calculateAdaptiveDelay(
+          i,
+          validatedInput.segments.length,
+          15000 // Estimated 15k tokens per request (with knowledge base)
+        );
+        console.log(`[Evaluate API] Waiting ${Math.round(adaptiveDelay / 1000)}s before next segment...`);
+        await delay(adaptiveDelay);
+      }
+    }
+
+    const processingTime = Date.now() - startTime;
+    console.log(`[Evaluate API] Completed ${evaluations.length} evaluations in ${processingTime}ms`);
+
+    // Get cache statistics for performance monitoring
+    const ragCacheStats = ragCache.getStats();
+    const promptCacheStats = promptCache.getStats();
+
+    console.log(`[Evaluate API] 📊 Cache Performance:`);
+    console.log(`  - RAG Cache: ${ragCacheStats.hits} hits, ${ragCacheStats.misses} misses, ${(ragCacheStats.hitRate * 100).toFixed(1)}% hit rate`);
+    console.log(`  - Prompt Cache: ${promptCacheStats.hits} hits, ${promptCacheStats.misses} misses, ${(promptCacheStats.hitRate * 100).toFixed(1)}% hit rate`);
+
+    // Return evaluation results
+    return NextResponse.json({
+      success: true,
+      data: {
+        evaluations,
+        summary: {
+          totalSegments: validatedInput.segments.length,
+          evaluatedSegments: evaluations.length,
+          compliantSegments: evaluations.filter(e => e.compliance).length,
+          violationCount: evaluations.reduce((sum, e) => sum + e.violations.length, 0),
+        },
+        productId: validatedInput.productId,
+        processingTimeMs: processingTime,
+        // Cache performance metrics (for monitoring)
+        cachePerformance: {
+          ragCache: {
+            hitRate: ragCacheStats.hitRate,
+            hits: ragCacheStats.hits,
+            misses: ragCacheStats.misses,
+          },
+          promptCache: {
+            hitRate: promptCacheStats.hitRate,
+            hits: promptCacheStats.hits,
+            misses: promptCacheStats.misses,
+          },
+        },
+      },
+    }, { status: 200 });
+
+  } catch (error: unknown) {
+    console.error('[Evaluate API] Error:', error);
+
+    // Zod validation error
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+      const zodError = error as { errors?: Array<{ message: string; path: (string | number)[] }> };
+      return NextResponse.json({
+        success: false,
+        error: 'バリデーションエラー',
+        details: zodError.errors,
+      }, { status: 400 });
+    }
+
+    // Gemini API errors
+    if (error instanceof Error) {
+      if (error.message.includes('API key') || error.message.includes('API_KEY')) {
+        return NextResponse.json({
+          success: false,
+          error: 'Gemini APIキーが無効です。正しいAPIキーを指定してください。',
+          details: error.message,
+        }, { status: 401 });
+      }
+
+      if (error.message.includes('quota') || error.message.includes('rate limit') || error.message.includes('429')) {
+        return NextResponse.json({
+          success: false,
+          error: 'APIレート制限に達しました。約30秒待ってから再試行してください。長文の場合は、テキストを分割して処理することをお勧めします。',
+          details: error.message,
+          retryAfter: 30
+        }, { status: 429 });
+      }
+
+      // Generic error
+      return NextResponse.json({
+        success: false,
+        error: '評価処理中にエラーが発生しました。',
+        details: error.message,
+      }, { status: 500 });
+    }
+
+    // Unknown error
+    return NextResponse.json({
+      success: false,
+      error: '予期しないエラーが発生しました。',
+    }, { status: 500 });
+  }
+}
+
+/**
+ * Pre-process segment text to detect annotation markers
+ * This function explicitly identifies which keywords have annotation markers (※1, ※2, etc.)
+ * to prevent AI from misreading the text
+ */
+interface AnnotationAnalysis {
+  keywordsWithMarkers: Array<{ keyword: string; marker: string; fullMatch: string }>;
+  keywordsWithoutMarkers: string[];
+  allAnnotations: Array<{ marker: string; text: string }>;
+}
+
+function analyzeAnnotations(segmentText: string, productId: ProductId): AnnotationAnalysis {
+  const analysis: AnnotationAnalysis = {
+    keywordsWithMarkers: [],
+    keywordsWithoutMarkers: [],
+    allAnnotations: [],
+  };
+
+  // Extract annotation definitions (※1 or *1 角質層まで, ※2 or *2 殺菌は消毒の作用機序として, etc.)
+  // Updated to support both ※ (kome-jirushi) and * (asterisk) markers
+  const annotationDefRegex = /([※*])(\d+)\s*[：:]\s*([^\n※*]+)/g;
+  const annotationDefRegex2 = /([※*])(\d+)\s+([^\n※*]+)/g;
+
+  let match;
+  while ((match = annotationDefRegex.exec(segmentText)) !== null) {
+    analysis.allAnnotations.push({
+      marker: `${match[1]}${match[2]}`,  // match[1] = ※ or *, match[2] = number
+      text: match[3].trim(),              // match[3] = annotation text
+    });
+  }
+
+  // Reset regex
+  annotationDefRegex2.lastIndex = 0;
+  while ((match = annotationDefRegex2.exec(segmentText)) !== null) {
+    // Avoid duplicates
+    const marker = `${match[1]}${match[2]}`;  // match[1] = ※ or *, match[2] = number
+    if (!analysis.allAnnotations.some(a => a.marker === marker)) {
+      analysis.allAnnotations.push({
+        marker: marker,
+        text: match[3].trim(),                // match[3] = annotation text
+      });
+    }
+  }
+
+  // Extract keywords with annotation markers directly attached (e.g., 浸透※1, 殺菌*2)
+  // Pattern: [キーワード][※ or *][数字]
+  // Updated to support both ※ (kome-jirushi) and * (asterisk) markers
+  const keywordWithMarkerRegex = /([ぁ-んァ-ヶー一-龠々a-zA-Z]+)([※*]\d+)/g;
+
+  const foundKeywordsWithMarkers = new Set<string>();
+  while ((match = keywordWithMarkerRegex.exec(segmentText)) !== null) {
+    const keyword = match[1];
+    const marker = match[2];
+    const fullMatch = match[0]; // e.g., "浸透※1"
+
+    analysis.keywordsWithMarkers.push({
+      keyword,
+      marker,
+      fullMatch,
+    });
+    foundKeywordsWithMarkers.add(keyword);
+  }
+
+  // Load product-specific required keywords dynamically FIRST
+  let productRequiredKeywords: string[] = [];
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { loadProductConfig } = require('../../../../lib/product-config-loader');
+    const config = loadProductConfig(productId);
+    productRequiredKeywords = config.segmentationKeywords.required;
+    console.log(`[analyzeAnnotations] Loaded ${productRequiredKeywords.length} product-specific keywords for ${productId}:`, productRequiredKeywords);
+  } catch (error) {
+    console.warn(`[analyzeAnnotations] Failed to load product config for ${productId}:`, error);
+  }
+
+  // Extract all potential keywords from the text (katakana and kanji sequences of 2+ chars)
+  // This helps identify keywords that might need annotations but don't have markers
+  const potentialKeywordRegex = /([ァ-ヶー]{2,}|[一-龠々]{2,})/g;
+  const allPotentialKeywords = new Set<string>();
+
+  while ((match = potentialKeywordRegex.exec(segmentText)) !== null) {
+    const keyword = match[1];
+    // Skip if this keyword already has a marker attached
+    if (!foundKeywordsWithMarkers.has(keyword)) {
+      allPotentialKeywords.add(keyword);
+    }
+  }
+
+  // 🔥 CRITICAL FIX: Add product-specific required keywords directly
+  // This ensures keywords like "ヒアルロン酸" (katakana+kanji mix) are detected
+  // 🐛 FIX: Only include keywords that actually exist in the segment
+  const existingProductKeywords: string[] = [];
+  for (const keyword of productRequiredKeywords) {
+    // Check if the keyword exists in the segment text
+    if (segmentText.includes(keyword)) {
+      existingProductKeywords.push(keyword);
+
+      // Add to potential keywords if it doesn't have a marker
+      if (!foundKeywordsWithMarkers.has(keyword)) {
+        allPotentialKeywords.add(keyword);
+        console.log(`[analyzeAnnotations] 🎯 Added product-specific keyword without marker: "${keyword}"`);
+      }
+    }
+  }
+
+  // Log which keywords were found vs not found (for debugging)
+  const missingProductKeywords = productRequiredKeywords.filter(kw => !existingProductKeywords.includes(kw));
+  if (missingProductKeywords.length > 0) {
+    console.log(`[analyzeAnnotations] ⚠️  Product keywords NOT in segment (will be excluded): ${missingProductKeywords.join(', ')}`);
+  }
+  console.log(`[analyzeAnnotations] ✓ Product keywords in segment: ${existingProductKeywords.join(', ') || '(none)'}`);
+
+  // Filter potential keywords to focus on those likely to need annotations
+  // Common patterns that often require annotations in cosmetic/pharmaceutical ads
+  const likelyNeedsAnnotation = (keyword: string): boolean => {
+    // Ingredient-related keywords (katakana is often used for ingredients)
+    if (/^[ァ-ヶー]+$/.test(keyword)) {
+      return true;
+    }
+
+    // Action/effect keywords (common kanji patterns)
+    const actionKeywords = ['浸透', '殺菌', '消毒', '除菌', '抗菌', '配合', '注入', '到達', '届く',
+                           '改善', '予防', '対策', 'ケア', '効果', '効能', '作用', '治療'];
+
+    // 🐛 FIX: Only merge product keywords that actually exist in the segment
+    const allActionKeywords = [...actionKeywords, ...existingProductKeywords];
+
+    if (allActionKeywords.some(ak => keyword.includes(ak))) {
+      return true;
+    }
+
+    return false;
+  };
+
+  // Add keywords that likely need annotations to the analysis
+  for (const keyword of allPotentialKeywords) {
+    if (likelyNeedsAnnotation(keyword)) {
+      analysis.keywordsWithoutMarkers.push(keyword);
+    }
+  }
+
+  return analysis;
+}
+
+/**
+ * Evaluate a single segment against legal knowledge base
+ *
+ * @param segment - Segment to evaluate
+ * @param productId - Product ID
+ * @param knowledgeContext - Knowledge base context
+ * @param model - Gemini model instance
+ * @param fullText - Full advertisement text for context (optional)
+ * @returns Segment evaluation with violations
+ */
+async function evaluateSegmentWithRetry(
+  segment: Segment,
+  productId: ProductId,
+  knowledgeContext: string,
+  model: { generateContent: (prompt: string) => Promise<{ response: { text: () => string } }> },
+  fullText?: string,
+  maxRetries: number = 3
+): Promise<SegmentEvaluation> {
+  const startTime = Date.now();
+
+  // Pre-process: Analyze annotations in the segment
+  const annotationAnalysis = analyzeAnnotations(segment.text, productId);
+
+  // Log the analysis for debugging
+  console.log(`[Evaluate] Annotation analysis for ${segment.id}:`);
+  console.log(`  Keywords WITH markers:`, annotationAnalysis.keywordsWithMarkers);
+  console.log(`  Keywords WITHOUT markers:`, annotationAnalysis.keywordsWithoutMarkers);
+  console.log(`  All annotations:`, annotationAnalysis.allAnnotations);
+
+  // NG Keyword Validation
+  const ngKeywordValidator = createNGKeywordValidator();
+  const ngValidationResult = ngKeywordValidator.validate(segment.text, fullText);
+
+  console.log(`[Evaluate] NG Keyword validation for ${segment.id}:`);
+  console.log(`  Has violations: ${ngValidationResult.hasViolations}`);
+  console.log(`  Summary:`, ngValidationResult.summary);
+  if (ngValidationResult.hasViolations) {
+    console.log(`  Detected NG keywords:`, ngValidationResult.explicitNGKeywordsList);
+    console.log(`  Details:`, ngKeywordValidator.getDetailedList(ngValidationResult));
+  }
+
+  // Period Expression Validation (FR-TIME-001, FR-TIME-002)
+  const periodAnalysis = analyzePeriodExpressions(segment.text, fullText);
+  const periodValidation = validatePeriodConsistency(segment.text, fullText);
+
+  console.log(`[Evaluate] Period expression validation for ${segment.id}:`);
+  console.log(`  Has period expressions: ${periodAnalysis.expressions.length > 0}`);
+  console.log(`  Period consistency: ${periodValidation.isValid ? 'Valid' : 'Invalid'}`);
+  if (!periodValidation.isValid) {
+    console.log(`  Period violations:`, periodValidation.violations);
+  }
+
+  // Guinness Record Validation (FR-GUIN-001, FR-GUIN-002)
+  const guinnessValidation = validateGuinnessRecord(segment.text, fullText);
+
+  console.log(`[Evaluate] Guinness record validation for ${segment.id}:`);
+  console.log(`  Has Guinness reference: ${guinnessValidation.hasGuinnessReference}`);
+  console.log(`  Guinness validation: ${guinnessValidation.isValid ? 'Valid' : 'Invalid'}`);
+  if (!guinnessValidation.isValid) {
+    console.log(`  Guinness violations:`, guinnessValidation.violations);
+  }
+
+  // Note: Knowledge filtering has been disabled to restore correct behavior
+  // Previous filtering logic caused false negatives in keyword detection
+
+  const fullTextSection = fullText ? `
+
+## 広告文全体（注釈や他のセグメントを含む）
+---
+${fullText}
+---
+
+**重要:** このセグメントを評価する際、広告文全体に含まれる注釈（※1、※2など）も考慮してください。
+注釈が存在する場合、その注釈を確認してから違反判定を行ってください。
+` : '';
+
+  // Pre-detect product-specific keywords in the segment
+  const detectedProductKeywords: string[] = [];
+  let productAnnotationRulesSection = '';
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { loadProductConfig } = require('../../../../lib/product-config-loader');
+    const config = loadProductConfig(productId);
+
+    // Detect which product-specific keywords are actually in this segment
+    for (const keyword of config.segmentationKeywords.required) {
+      if (segment.text.includes(keyword)) {
+        detectedProductKeywords.push(keyword);
+      }
+    }
+
+    if (detectedProductKeywords.length > 0) {
+      console.log(`[Evaluate] 🎯 Detected product-specific keywords in ${segment.id}: ${detectedProductKeywords.join(', ')}`);
+
+      const detectedRulesList = detectedProductKeywords
+        .filter(keyword => config.annotationRules[keyword])
+        .map(keyword => {
+          const rule = config.annotationRules[keyword];
+          console.log(`[Evaluate] 📌 Required annotation for "${keyword}": ${rule.template}`);
+          return `- 「${keyword}」→ 必須注釈：「${rule.template}」（重大度：${rule.severity === 'high' ? '高' : '中'}）`;
+        })
+        .join('\n');
+
+      productAnnotationRulesSection = `
+
+# 🚨【最優先】このセグメントで検出された商品固有キーワード 🚨
+
+**このセグメントには以下の${config.name}（${productId}）固有キーワードが含まれています：**
+
+${detectedProductKeywords.map(k => `「${k}」`).join('、')}
+
+**これらのキーワードには以下の注釈が必須です：**
+
+${detectedRulesList}
+
+**【絶対厳守】これらのキーワードが※マーカーなしで使用されている場合、必ず違反として検出してください！**
+
+---
+`;
+    }
+  } catch (error) {
+    // 設定ファイルがない場合は無視
+    console.error('[Evaluate] Error loading product config:', error);
+  }
+
+  // 注釈マーカールールセクション（※ と * の両方を有効なマーカーとして認識）
+  const annotationMarkerRulesSection = `
+
+## 📝【重要】注釈マーカーの認識ルール
+
+### 有効な注釈マーカー形式
+
+このシステムは以下の注釈マーカーを全て認識し、有効なマーカーとして扱います：
+
+1. **標準形式（推奨）:** ※1, ※2, ※3, ...
+   - 例: クマ※1対策
+   - 注釈: ※1 乾燥や古い角質によるくすみ、ハリが不足した暗い目の下
+
+2. **互換形式:** *1, *2, *3, ... (アスタリスク)
+   - 例: クマ*対策
+   - 注釈: *乾燥や古い角質によるくすみ、ハリが不足した暗い目の下
+
+3. **簡易形式:** ※ または * (数字なし)
+   - 例: シミ対策※
+   - 注釈: ※メラニンの生成によるもの
+
+### 【重要】評価基準
+
+- マーカーの種類（※ または *）が異なっても、正しく記載されていれば**適合**と判定してください
+- 重要なのはマーカーの**存在**と**対応する定義の内容**です
+- ナレッジベースで * が使用されていても、実際のテキストで ※ が使用されていれば適合です
+- 逆に、ナレッジベースで ※ が使用されていても、実際のテキストで * が使用されていれば適合です
+
+**❌ 誤った判定例:**
+- テキストに「クマ※1対策」と正しく記載されているのに「注釈マーカーがない」と判定する → **誤り**
+- マーカーの種類が異なるだけで不適合と判定する → **誤り**
+
+**✓ 正しい判定例:**
+- 「クマ※1対策 ※1 乾燥や...」→ 適合（マーカーあり、定義あり）
+- 「クマ*対策 *乾燥や...」→ 適合（アスタリスクも有効）
+- 「クマ対策」→ 不適合（マーカーなし）
+`;
+
+  const annotationAnalysisSection = `
+
+## 【自動検出】このセグメントの注釈マーカー分析結果
+
+システムが事前にテキストを解析し、注釈マーカーの有無を検出しました。
+**以下の分析結果に基づいて評価してください。テキストを再度読み直す必要はありません。**
+
+### 注釈マーカー付きキーワード（※記号が直後に付いている）
+${annotationAnalysis.keywordsWithMarkers.length > 0
+  ? annotationAnalysis.keywordsWithMarkers.map(k => `- 「${k.fullMatch}」 → キーワード「${k.keyword}」に${k.marker}が付いている`).join('\n')
+  : '- なし'}
+
+### 注釈マーカーなしキーワード（※記号が付いていない、注釈が必要な可能性があるキーワード）
+${annotationAnalysis.keywordsWithoutMarkers.length > 0
+  ? annotationAnalysis.keywordsWithoutMarkers.map(k => `- 「${k}」 → 注釈記号なし → 知識ベースを確認して評価が必要`).join('\n')
+  : '- なし（または自動検出できず）'}
+
+### セグメント内の注釈定義
+${annotationAnalysis.allAnnotations.length > 0
+  ? annotationAnalysis.allAnnotations.map(a => `- ${a.marker}: ${a.text}`).join('\n')
+  : '- なし'}
+
+**【極めて重要】評価指示:**
+1. **注釈マーカー付きキーワード**については、対応する注釈定義を確認し、内容が適切か評価してください
+2. **注釈マーカーなしキーワード**については、知識ベースを参照して通常通り厳格に評価してください
+   - セグメント内に注釈があっても、そのキーワードに※記号が直接付いていなければ注釈を考慮しない
+   - **複数のキーワードがリストされている場合、それぞれを個別に評価し、違反があればすべて記録する**
+   - 例：「浸透」「殺菌」が両方リストされている場合、両方を個別に評価し、両方とも違反なら2つの違反として記録
+3. 上記のリストに含まれていないキーワードについても、テキスト全体を確認し、知識ベースに該当する規定があれば評価してください
+
+`;
+
+  // Detect if this segment contains period-sensitive keywords (Guinness, No.1, etc.)
+  const periodSensitiveKeywords = ['売上世界一', '世界一', 'ギネス', 'No.1', 'ナンバーワン', 'ナンバー1'];
+  const hasPeriodSensitiveKeyword = periodSensitiveKeywords.some(keyword =>
+    segment.text.includes(keyword)
+  );
+
+  const periodValidationSection = hasPeriodSensitiveKeyword ? `
+
+## 🎯【特別検証必須】期間検証の特別指示（ギネス世界記録™・売上世界一表現）
+
+**⚠️ このセグメントには期間に関する特別な検証が必要なキーワード（${periodSensitiveKeywords.filter(k => segment.text.includes(k)).join('、')}）が含まれています ⚠️**
+
+### 【絶対厳守】期間検証の実行手順
+
+このセグメントに「売上世界一」「世界一」「ギネス」「No.1」などの最上級表現が含まれる場合、
+以下の手順で期間検証を**必ず実行**してください：
+
+#### ステップ1: 期間表記の抽出
+- 注釈内から期間表記を抽出してください
+- 例: 「2019年3月～2025年2月」「2020年～2024年」「2020年～2025年の5年間」など
+- 年月日の表記を正確に読み取ってください
+
+#### ステップ2: ナレッジベースの正しい期間を確認
+- ナレッジベース「44_ギネス世界記録™について.txt」を参照
+- **正しい期間: 2020年～2024年の5年間**
+- 開始年: 2020年
+- 終了年: 2024年
+- 期間: 5年連続
+
+#### ステップ3: 厳密な比較チェック
+
+以下の3項目を**すべて**チェックしてください：
+
+**✅ チェック1: 開始年が2020年であるか**
+- 2019年 → **違反**（1年早い）
+- 2020年 → **OK**
+- 2021年以降 → **違反**
+
+**✅ チェック2: 終了年が2024年であるか**
+- 2023年 → **違反**（1年短い）
+- 2024年 → **OK**
+- 2025年以降 → **違反**（1年以上長い）
+
+**✅ チェック3: 期間の長さ（明示されている場合のみ）**
+- 「N年間」「N年連続」と明記されている場合のみチェック
+  - 4年間以下 → **違反**
+  - 5年間/5年連続 → **OK**
+  - 6年間以上 → **違反**
+- 年の範囲のみ（「2020年～2024年」など）の場合は、開始年と終了年が正しければ**OK**（期間の長さは問わない）
+
+#### ステップ4: 判定結果の出力
+
+**【重要】全てのチェックが正しい場合は適合と判定してください。**
+
+**✅ 適合の場合（全チェック項目がOKの場合）:**
+- チェック1: 開始年が2020年 → OK
+- チェック2: 終了年が2024年 → OK
+- チェック3: 期間が5年間/5年連続（明示されている場合） → OK、または年範囲のみでOK
+
+→ **この場合は「適合」と判定し、違反として報告しないでください。**
+→ supportingEvidenceに「期間が2020年～2024年で正しいため、違反はありません」などと記載してください。
+
+**❌ 違反の場合（いずれかのチェック項目がNGの場合）:**
+
+**期間が1つでも異なる場合は必ず違反として検知してください。**
+
+違反メッセージの形式（必ずこの形式で記載）:
+\`\`\`
+【景表法違反・優良誤認】期間表記が誤っています。
+
+記載期間: 「[実際に記載されている期間]」
+正しい期間: 「2020年～2024年の5年間」
+誤りの内容: [開始年が1年早い / 終了年が1年遅い / 期間が6年になっている など、具体的に記載]
+
+修正方法: 注釈の期間を「2020年～2024年」または「2020年～2024年の5年連続」に修正してください。
+\`\`\`
+
+### 【重要】見逃し厳禁
+
+この検証は**最優先**です。期間が1年でもずれている場合は**必ず違反として検出**してください。
+ただし、**全てのチェック項目が正しい場合は適合と判定**し、違反として報告しないでください。
+「注釈が不十分」といった曖昧なメッセージではなく、上記の具体的な形式で違反内容を記載してください。
+
+---
+` : '';
+
+  // Enhanced Period and Guinness Validation Instructions (FR-TIME-002, FR-GUIN-002)
+  const enhancedValidationSection = `
+
+## 🔍【期間表現・ギネス記録 詳細検証結果】
+
+${periodValidation.isValid ? '✅ 期間表現: 一貫性あり' : '❌ 期間表現: 不整合を検出'}
+
+${!periodValidation.isValid ? `
+### 検出された期間不整合:
+${periodValidation.violations.map(v => `
+**違反タイプ**: ${v.type === 'period_mismatch' ? '期間不一致' : '年数計算エラー'}
+**重大度**: ${v.severity === 'high' ? '高' : '中'}
+**内容**: ${v.description}
+**期待値**: ${v.expected}
+**実際の値**: ${v.actual}
+**修正案**: ${v.correctionSuggestion}
+`).join('\n')}
+
+**【重要】上記の期間不整合を違反として必ず報告してください。**
+` : ''}
+
+${guinnessValidation.hasGuinnessReference ? `
+### ギネス記録検証結果:
+${guinnessValidation.isValid ? '✅ ギネス記録: 検証合格' : '❌ ギネス記録: 違反を検出'}
+
+${!guinnessValidation.isValid ? `
+#### 検出されたギネス記録違反:
+${guinnessValidation.violations.map(v => `
+**違反タイプ**: ${
+  v.type === 'title_mismatch' ? '認定名不一致' :
+  v.type === 'period_mismatch' ? '期間不一致' :
+  v.type === 'product_mismatch' ? '対象物不一致' :
+  '注釈不完全'
+}
+**重大度**: ${v.severity === 'high' ? '高' : '中'}
+**内容**: ${v.description}
+**期待される表記**: ${v.expected}
+**実際の表記**: ${v.actual}
+**修正案**: ${v.correctionSuggestion}
+${v.referenceKnowledge ? `**参照ナレッジ**: ${v.referenceKnowledge.file}` : ''}
+`).join('\n')}
+
+**【重要】上記のギネス記録違反を必ず報告してください。**
+` : ''}
+` : ''}
+
+---
+`;
+
+  const prompt = `
+あなたは広告表現の法務チェックの専門家です。以下のセグメントを厳密に評価してください。
+
+${productAnnotationRulesSection}
+
+${ngValidationResult.instructionsForGemini}
+
+${enhancedValidationSection}
+
+## 🚨【最優先・絶対厳守】知識ベースルール適用の前提条件 🚨
+## 知識ベースルール適用の前提条件
+
+知識ベースのルールに複数のキーワードが含まれている場合（例：「殺菌※ジェル」は「殺菌」と「ジェル」の2つ）、
+**そのルール内のすべてのキーワードがセグメント内に存在している場合のみ**、そのルールを適用できます。
+
+**例：**
+- ❌ セグメント「薬用ジェル」に対して「殺菌※ジェル」ルールを適用 → 誤り（「殺菌」がない）
+- ✅ セグメント「殺菌ジェル」に対して「殺菌※ジェル」ルールを適用 → 正しい
+
+${annotationMarkerRulesSection}
+
+${annotationAnalysisSection}
+
+${periodValidationSection}
+
+# セグメント情報
+
+**評価対象のセグメントテキスト:**
+\`\`\`
+${segment.text}
+\`\`\`
+
+**セグメントID:** ${segment.id}
+**セグメントタイプ:** ${segment.type}
+**商品ID:** ${productId}
+
+## 評価の優先順位
+
+**以下の優先順位に従って評価を行ってください:**
+
+### 第1優先：社内基準（【薬事・景表法・社内ルールまとめ】）
+- 商品ごとの【薬事・景表法・社内ルールまとめ】ファイルを最優先で参照
+- 社内基準でOKと判定される場合、法令でNGでも最終判定はOK
+- 例：「殺菌※ジェル ※殺菌は消毒の作用機序として」→ 社内基準でOK
+
+#### 【薬事・景表法・社内ルールまとめ】ファイルの表構造
+
+このファイルには2つのセクションがあります：
+
+**1. ＜OK例＞セクション（「言えること」）**
+- 表形式で記載
+- カラム：「言えること」「理由」「主な適用法令」
+- 色分け：緑色=無条件OK、赤色=条件付きOK（理由欄の条件を満たす場合のみ）
+
+**2. ＜NG例＞セクション（「言えないこと」）**
+- 表形式で記載
+- カラム：「言えないこと」「理由」「主な適用法令」
+
+#### 知識ベースルールの正しい読み方
+
+**ルールの記述形式**: 「注釈対象キーワード」+「※」+「文脈・剤型」+「※注釈内容」
+
+**例**: 「殺菌※ジェル ※殺菌は消毒の作用機序として」
+
+**ルールの構造と意味**:
+| 要素 | 意味 | 例 |
+|------|------|-----|
+| ※の直前 | 注釈が必要なキーワード（チェック対象） | 「殺菌」「浸透」 |
+| ※の直後 | このルールが適用される文脈・剤型（参考情報のみ） | 「ジェル」「1」 |
+| ※以降の説明 | 注釈の内容 | 「※殺菌は消毒の作用機序として」 |
+
+**ルール適用の判断基準**:
+- セグメント内に「※の直前のキーワード」が存在するか確認
+- 存在しない → このルールは適用しない
+- 存在する → このルールを適用して評価
+
+**評価時の確認フロー**:
+1. ステップ1: まず＜OK例＞セクションで該当する表現を検索
+   - 該当する場合、「理由」カラムを確認し、条件を満たしているか確認
+2. ステップ2: ＜OK例＞にない場合、＜NG例＞セクションで検索
+   - 該当する場合、NGと判定
+3. ステップ3: どちらにもない場合、一般的な法令ルールで評価
+
+### 第2優先：各種法令（薬機法、景表法、特商法など）
+- 社内基準でOKと明示されている場合は、法令上の懸念があっても社内基準を優先
+
+### 第3優先：各種ガイドライン
+- 業界ガイドライン、厚生労働省ガイドライン、消費者庁ガイドラインなど
+
+## RAG検索と類似表現検出の強化
+
+### 類似表現・言い換え表現の検出ルール
+
+広告文では同じ意味を持つ表現が様々な形で記載されます。知識ベースの記載と完全一致しなくても、**意味が同じ・類似する表現**を検出し、適切に評価してください。
+
+#### 検出すべき類似表現パターン
+
+**1. 浸透表現の類似パターン**
+- 基本形: 「浸透」「染み込む」「届く」「到達」
+- 強調形: 「直接浸透」「深く浸透」「奥まで浸透」
+- 言い換え: 「注入」「導入」「デリバリー」
+
+**2. 効果表現の言い換え**
+- シワ: 「しわ」「皺」「小じわ」「小ジワ」
+- シミ: 「しみ」「そばかす」「色素沈着」
+- 美白: 「ホワイトニング」「ブライトニング」
+
+**3. 数値・順位表現**
+- No.1: 「ナンバーワン」「第1位」「1位」「トップ」
+- 世界一: 「世界No.1」「世界最大」「世界トップ」
+
+## セグメント内の注釈の考慮
+
+**注釈記号（※1、※2など）が明示的に付いている表現のみ、注釈を考慮します。**
+
+### 評価前の必須確認事項
+
+このセグメントのテキスト全体を一字一句、正確に読み取ってください：
+**「${segment.text}」**
+
+**確認ポイント:**
+1. 各キーワードの直後に※記号（※1、※2など）が付いているか確認
+   - ✅ 「浸透※1」 → 注釈記号あり
+   - ❌ 「浸透」 → 注釈記号なし
+
+2. キーワードと※記号の間にスペースや句読点がないか確認
+   - ✅ 「浸透※1」 → 直後に付いている（OK）
+   - ❌ 「浸透 ※1」 → スペースがある（注釈記号なしとみなす）
+
+### 注釈評価の大原則
+
+**原則1: 注釈記号がある表現のみ注釈を考慮**
+- 「浸透※1」のように、※記号が付いている場合のみ、対応する注釈を探す
+- 注釈記号がない表現は、注釈があっても関係なく、通常通り厳格に評価
+
+**原則2: 各キーワードを個別に評価**
+- セグメント内の全てのキーワードを最後まで確認し、それぞれ個別に評価
+- 例: 「浸透※1・殺菌する」の場合
+  - 「浸透※1」 → ※記号あり → 注釈※1を確認
+  - 「殺菌」 → ※記号なし → 通常通り厳格に評価
+
+**原則3: 違反は全て検出**
+- 1つのセグメントに複数の違反がある場合、それぞれを独立した違反として記録
+
+### 評価例
+
+**❌ NG例: セグメント「浸透※1・殺菌する\n※1 角質層まで」**
+- 「浸透※1」: 注釈あり → 違反なし
+- 「殺菌」: 注釈記号なし → 社内基準違反
+
+**✅ OK例: セグメント「浸透※1・殺菌※2する\n※1 角質層まで\n※2 殺菌は消毒の作用機序として」**
+- 「浸透※1」: 注釈あり、内容OK → 違反なし
+- 「殺菌※2」: 注釈あり、内容OK → 違反なし
+
+### 注釈内容の評価基準
+
+**a) 売上No.1・世界一などの表示**
+- 調査機関名、調査期間、調査対象範囲が明記されているか
+- ナレッジベースの情報と矛盾していないか
+
+**b) リピート率の表示**
+- 算出期間、算出方法が明記されているか
+
+**c) ギネス世界記録™の表示**
+- 認定されている商品か、認定期間が正しいか
+- 表示内容と実際の認定内容が一致しているか
+
+**評価例:**
+- ❌ 「6年連続売上世界一※1」 注釈: 「※1：2019年3月～2025年2月（6年）」ナレッジベース: 「2020年~2024年の5年連続で認定」→ 違反（表示は6年だが、認定は5年のみ）
+- ✅ 「5年連続売上世界一※1」 注釈: 「※1：2020年~2024年、ギネス世界記録™認定」ナレッジベース: 「2020年~2024年の5年連続で認定」→ 適合
+
+## 正しい判定例（Few-shot Examples）
+
+### 例1: 社内基準優先（「医師も教えない」+「殺菌ジェル」）
+**テキスト:** "医師も教えない汚い爪をキレイにする殺菌ジェル"
+**判定:** 「殺菌ジェル」に注釈がない → 社内基準違反
+**重要:** 「医師も教えない」は社内基準でOK。同じ表現でも社内基準と一般法令が矛盾する場合、社内基準を優先。
+
+### 例2: 複合違反（「ヒアルロン酸直注入」）
+**テキスト:** "ヒアルロン酸直注入で"
+**違反:** ①ヒアルロン酸に配合目的なし ②直注入に角質層明記なし → 2つの社内基準違反
+
+### 例3: テキストに含まれない表現の誤検出防止
+**テキスト:** "目元の老け見え印象対策"
+**違反:** 「老け見え印象対策」が効能効果56項目外 → 薬機法違反
+**重要:** このセグメントには「ヒアルロン酸」も「直注入」も含まれていないため、それらの違反を指摘してはいけない。
+
+### 例4: 特商法違反（「いまなら」）
+**テキスト:** "いまならアンケート回答で半額の1,815円（税込）"
+**違反:** 「いまなら」= 期限を明示しない限定表現 → 特商法違反
+**修正:** 「このページから申込むと」または「いまなら」を削除
+
+## 評価基準
+
+**評価は以下の優先順位で実施します：**
+
+1. **社内基準違反の有無をチェック（最優先）**
+   - 【薬事・景表法・社内ルールまとめ】ファイルに記載されている商品固有のルールを確認
+   - 社内基準でOKと明示されている場合は、法令上の懸念があっても最終判定はOK
+
+2. **薬機法違反の有無をチェック**
+   - 医薬品的な効能効果の標榜、承認されていない効能効果の表示、虚偽誇大広告
+   - ただし、社内基準でOKと明示されている表現は除外
+
+3. **景表法違反の有無をチェック**
+   - 優良誤認表示、有利誤認表示、根拠のない最上級表現
+   - ただし、社内基準でOKと明示されている表現は除外
+
+4. **特商法違反の有無をチェック（全商品共通）**
+   テキストに以下のキーワードが含まれている場合、特商法違反として検知：
+   - 「いまなら」「今なら」「今だけ」「期間限定」「本日限り」「終了間近」「限定」「先着」（数量や期間の明示がない場合）
+
+   **検知例:**
+   - ❌ NG: 「いまならアンケート回答で半額」 → 特商法違反
+   - ✅ OK: 「今申込むと55%OFF」 → 問題なし
+
+## 重要度レベル
+- high: 法的リスクが高く、即座に修正が必要
+- medium: 注意が必要だが、条件付きで許容される可能性あり
+- low: 推奨事項レベル
+
+## 最終確認
+
+評価を開始する前に、もう一度確認してください：
+
+1. **このセグメントのテキスト**: 「${segment.text}」
+2. **評価対象**: このテキストに実際に含まれている表現のみ
+3. **評価対象外**: このテキストに含まれていない表現（他のセグメントの内容など）
+
+✅ テキストに「ヒアルロン酸」という言葉が実際に含まれている場合のみ、配合目的の記載をチェック
+✅ テキストに「浸透」「注入」などの言葉が実際に含まれている場合のみ、角質層の明記をチェック
+❌ テキストに含まれていない言葉について違反を指摘しない
+
+## 出力形式
+以下のJSON形式で厳密に返してください：
+{
+  "segmentId": "${segment.id}",
+  "compliance": true | false,
+  "violations": [
+    {
+      "type": "社内基準違反" | "薬機法違反" | "景表法違反" | "特商法違反" | "その他",
+      "severity": "high" | "medium" | "low",
+      "description": "具体的な違反内容の詳細説明（どの表現がどの条文・基準に抵触するか）",
+      "referenceKnowledge": {
+        "file": "参照した知識ファイル名",
+        "excerpt": "知識ベースから該当箇所を一字一句そのまま引用"
+      },
+      "correctionSuggestion": "知識ベースに基づいた具体的な修正案",
+      "confidence": 0.0から1.0の数値（この違反判定の確信度）
+    }
+  ],
+  "supportingEvidence": ["適合している理由や根拠（complianceがtrueの場合）"]
+}
+
+**重要：typeの優先順位**
+- 同じ表現について複数の基準に抵触する場合、最も優先度の高い基準をtypeとして使用
+- 例：社内基準と薬機法の両方に抵触する場合 → "社内基準違反"を使用
+
+## ナレッジ引用の絶対ルール
+
+### コピー＆ペーストの徹底
+
+**referenceKnowledge.excerptは、知識ベースファイルから該当箇所を「コピー」して「ペースト」するだけです。**
+**一切の要約、言い換え、解釈、独自表現の追加は絶対禁止です。**
+
+**手順:**
+1. 知識ベースファイルから該当箇所を見つける
+2. その箇所の見出し（###や####）も含めて、そのままコピー
+3. referenceKnowledge.excerptに一切変更せずペースト
+
+### 実際に発生している誤りと正しい引用方法
+
+#### ❌ 誤りパターン1: AI独自の内容を捏造（クマ表現の例）
+
+**絶対にやってはいけない誤った引用:**
+{ "referenceKnowledge": { "file": "25_クマ表現について.txt", "excerpt": "クマという表現を使う場合、メーキャップ効果によるという注釈が必要です。" } }
+
+**❌ なぜNG:** 「メーキャップ効果による」という注釈は知識ベースに存在しません。これはAIが勝手に作った内容です。
+
+**✅ 正しい引用方法:**
+{ "referenceKnowledge": { "file": "25_クマ表現について.txt", "excerpt": "##### **「クマ」という表現を使いたい時**\\n以下の注記とセットで使用して下さい。\\n※乾燥や古い角質によるくすみ、ハリが不足した暗い目の下" } }
+
+#### ❌ 誤りパターン2: キーワードの繰り返し（ギネス世界記録の例）
+
+**絶対にやってはいけない誤った引用:**
+{ "referenceKnowledge": { "file": "44_ギネス世界記録™について.txt", "excerpt": "売上世界一※1 売上世界一※1 売上世界一※1" } }
+
+**❌ なぜNG:** これは知識ベース内のOK例のテキストを繰り返しているだけで、違反の説明になっていません。
+
+**✅ 正しい引用方法:**
+{ "referenceKnowledge": { "file": "44_ギネス世界記録™について.txt", "excerpt": "#### ❌ NG例1: 開始年が早すぎる\\n\\n**誤:** 2019年3月～2025年2月\\n**理由:** 開始年が2019年となっており、正しい2020年より1年早い\\n**違反内容:** 実際より長い期間を訴求（優良誤認）" } }
+
+### ルール: referenceKnowledge.excerpt の作成方法
+
+1. 上記の「適用される知識ベース」セクションから該当する規定を正確に探す
+2. 見つけた規定の原文を一字一句変更せずコピーする
+3. 要約・言い換え・解釈・短縮・AI独自の表現追加は絶対禁止
+4. システムメッセージや警告メッセージを引用してはいけない
+5. 見出し（###、####など）も必ず含める
+6. 最低でも3〜5行程度の文脈を含める
+
+**❌ 絶対にやってはいけないこと:**
+- システムメッセージの引用（例：「ナレッジベースが長すぎるため...」）
+- AI自身の解釈や要約の追加
+- 知識ベースにない内容の捏造
+- キーワードを繰り返すだけで説明がない引用
+- 見出しを省略した短すぎる引用
+
+**✅ 良い例:**
+"referenceKnowledge": {
+  "file": "25_クマ表現について.txt",
+  "excerpt": "##### **「クマ」という表現を使いたい時**\n以下の注記とセットで使用して下さい。\n※乾燥や古い角質によるくすみ、ハリが不足した暗い目の下"
+}
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      // Debug: Log the prompt being sent to Gemini (first attempt only to avoid spam)
+      if (attempt === 0) {
+        console.log('');
+        console.log('========== GEMINI PROMPT for', segment.id, '==========');
+        console.log('Segment text:', segment.text);
+        console.log('Product ID:', productId);
+        console.log('Knowledge context (', knowledgeContext.length, 'chars):');
+        console.log(knowledgeContext.substring(0, 500) + '...');
+        console.log('========== END PROMPT ==========');
+        console.log('');
+      }
+
+      const result = await model.generateContent(prompt);
+      const responseText = result.response.text();
+
+      // Debug: Log the raw response
+      console.log('');
+      console.log('========== GEMINI RESPONSE for', segment.id, '(attempt', attempt + 1, ') ==========');
+      console.log(responseText);
+      console.log('========== END RESPONSE ==========');
+      console.log('');
+
+      // Parse JSON response
+      const evaluation = parseJsonResponse<SegmentEvaluation>(responseText);
+
+      // Normalize violation types to valid enum values and validate required fields
+      if (evaluation.violations && Array.isArray(evaluation.violations)) {
+        evaluation.violations = evaluation.violations.map((violation, vIndex) => {
+          const validTypes = ['社内基準違反', '薬機法違反', '景表法違反', '特商法違反', 'その他'];
+          if (!validTypes.includes(violation.type)) {
+            console.warn('[Evaluate] Invalid violation type', violation.type, ', mapping to その他');
+            violation.type = 'その他' as const;
+          }
+
+          // Validate referenceKnowledge
+          if (!violation.referenceKnowledge?.file) {
+            console.error('[Evaluate] CRITICAL: Missing referenceKnowledge.file for', segment.id, 'violation', vIndex + 1);
+            console.error('[Evaluate] Violation description:', violation.description);
+            violation.referenceKnowledge = {
+              ...violation.referenceKnowledge,
+              file: '【エラー：参照元が指定されていません】',
+              excerpt: violation.referenceKnowledge?.excerpt || '【エラー：知識ベースからの引用が欠落しています】'
+            };
+          }
+
+          // Validate excerpt
+          if (!violation.referenceKnowledge?.excerpt || violation.referenceKnowledge.excerpt.length < 10) {
+            console.error('[Evaluate] CRITICAL: Missing or too short referenceKnowledge.excerpt for', segment.id, 'violation', vIndex + 1);
+            console.error('[Evaluate] File:', violation.referenceKnowledge?.file);
+            if (!violation.referenceKnowledge.excerpt) {
+              violation.referenceKnowledge.excerpt = '【エラー：知識ベースからの引用が欠落しています。評価を再実行してください】';
+            }
+          }
+
+          // Issue #13: Advanced knowledge excerpt validation
+          if (violation.referenceKnowledge?.excerpt && violation.referenceKnowledge.file) {
+            const validationResult = validateKnowledgeExcerpt(
+              violation.referenceKnowledge.excerpt,
+              violation.referenceKnowledge.file
+            );
+
+            // Log validation results
+            logValidationResult(segment.id, violation.referenceKnowledge.file, validationResult);
+
+            // Check for fabricated content
+            if (detectFabricatedContent(violation.referenceKnowledge.excerpt)) {
+              console.error(`[Evaluate] 🚨 FABRICATED CONTENT DETECTED in ${segment.id}!`);
+              console.error(`[Evaluate] File: ${violation.referenceKnowledge.file}`);
+              console.error(`[Evaluate] Excerpt: ${violation.referenceKnowledge.excerpt.substring(0, 200)}`);
+              console.error(`[Evaluate] This excerpt contains known fabricated patterns. AI may be generating content not in knowledge base.`);
+            }
+
+            // If validation failed with critical errors, log them
+            if (!validationResult.isValid) {
+              console.error(`[Evaluate] ❌ Knowledge excerpt validation failed for ${segment.id}`);
+              console.error(`[Evaluate] Errors: ${validationResult.errors.join(', ')}`);
+            }
+          }
+
+          // 【重要】根拠がない場合のバリデーション
+          // 知識ベースにルール自体が存在しない場合のみフィルタリング
+          // 「内容が一致しない」「期間が異なる」等の違反は正当なのでフィルタリングしない
+          const excerpt = violation.referenceKnowledge?.excerpt || '';
+
+          // ルール自体が存在しないことを示すパターン（これらはフィルタリング対象）
+          const noRulePatterns = [
+            '同様の表現に関する記述は見当たらず',
+            '該当する規定は見当たらず',
+            'このキーワードに関する記述は見当たらず',
+            '関連する記載なし',
+            '該当する記載なし',
+            '知識ベースに記載なし',
+            '規定が見つかりません',
+            '明確な規定が確認できませんでした'
+          ];
+
+          const hasNoRule = noRulePatterns.some(pattern => excerpt.includes(pattern));
+
+          // 内容の不一致を示すパターン（これらはフィルタリングしない - 正当な違反）
+          const contentMismatchPatterns = [
+            '期間が',
+            '内容が',
+            '年数が',
+            '一致',
+            '異なる',
+            '矛盾',
+            '相違',
+            '不整合'
+          ];
+
+          const hasContentMismatch = contentMismatchPatterns.some(pattern => excerpt.includes(pattern));
+
+          if (hasNoRule && !hasContentMismatch) {
+            console.warn(`[Evaluate] ⚠️ INVALID VIOLATION DETECTED: ${segment.id} violation ${vIndex + 1}`);
+            console.warn(`[Evaluate] Excerpt indicates no rule exists: ${excerpt.substring(0, 200)}`);
+            console.warn(`[Evaluate] This violation will be REMOVED as it has no basis in knowledge base.`);
+            // この違反をnullにマークして後で削除
+            return null;
+          }
+
+          // Validate correctionSuggestion
+          if (!violation.correctionSuggestion || violation.correctionSuggestion.length < 5) {
+            console.error(`[Evaluate] ⚠️ CRITICAL: Missing or too short correctionSuggestion for ${segment.id} violation ${vIndex + 1}`);
+            console.error(`[Evaluate] Description: ${violation.description}`);
+            console.error(`[Evaluate] File: ${violation.referenceKnowledge?.file}`);
+            violation.correctionSuggestion = '【エラー：具体的な修正案が生成されませんでした。知識ベース「' +
+              (violation.referenceKnowledge?.file || '不明') +
+              '」を参照し、該当する修正案・対策・推奨表現を確認してください】';
+          }
+
+          return violation;
+        }).filter((v): v is NonNullable<typeof v> => v !== null); // 根拠のない違反を除外
+      }
+
+      // 【重要】違反が0件になった場合、complianceをtrueに更新
+      if (evaluation.violations.length === 0 && evaluation.compliance === false) {
+        console.log(`[Evaluate] ✓ Correcting compliance: ${segment.id} has no valid violations, setting compliance = true`);
+        evaluation.compliance = true;
+      }
+
+      // Add metadata
+      evaluation.evaluatedAt = new Date().toISOString();
+      evaluation.processingTimeMs = Date.now() - startTime;
+
+      // Validate result
+      if (!evaluation.segmentId || evaluation.compliance === undefined) {
+        throw new Error('Invalid evaluation response format');
+      }
+
+      return evaluation;
+
+    } catch (error) {
+      const isLastAttempt = attempt === maxRetries;
+      const errorMessage = error instanceof Error ? error.message : String(error);
+
+      // Check if it's a rate limit error
+      const isRateLimitError = errorMessage.includes('429') ||
+                               errorMessage.includes('rate limit') ||
+                               errorMessage.includes('quota');
+
+      if (isLastAttempt) {
+        console.error(`[Evaluate] ❌ Failed segment ${segment.id} after ${maxRetries + 1} attempts`);
+        console.error(`[Evaluate] Final error: ${errorMessage}`);
+        throw error;
+      }
+
+      // Calculate backoff delay
+      // For rate limit errors: 10s, 20s, 40s (exponential with base 10)
+      // For other errors: 1s, 2s, 3s (linear)
+      const baseDelay = isRateLimitError ? 10000 : 1000;
+      const backoffMultiplier = isRateLimitError ? Math.pow(2, attempt) : (attempt + 1);
+      const backoffDelay = baseDelay * backoffMultiplier;
+
+      console.warn(`[Evaluate] ⚠️ Attempt ${attempt + 1}/${maxRetries + 1} failed for segment ${segment.id}`);
+      console.warn(`[Evaluate] Error type: ${isRateLimitError ? 'Rate Limit' : 'Other'}`);
+      console.warn(`[Evaluate] Error message: ${errorMessage.substring(0, 200)}...`);
+      console.warn(`[Evaluate] Retrying in ${backoffDelay}ms (${Math.round(backoffDelay / 1000)}s)...`);
+
+      await delay(backoffDelay);
+    }
+  }
+
+  // Should never reach here
+  throw new Error(`Failed to evaluate segment ${segment.id} after ${maxRetries + 1} attempts`);
+}
+
+/**
+ * Parse JSON response from Gemini, handling various formats
+ */
+function parseJsonResponse<T>(responseText: string): T {
+  // Clean up response text
+  const cleanText = responseText.trim();
+
+  // Try direct parse first
+  try {
+    const result = JSON.parse(cleanText);
+    console.log('[Parse] Direct parse succeeded');
+    return result;
+  } catch (directError) {
+    console.log('[Parse] Direct parse failed, attempting extraction...');
+
+    // Extract JSON from markdown code blocks
+    const jsonMatch = cleanText.match(/```json\s*([\s\S]*?)\s*```/) ||
+                      cleanText.match(/```\s*([\s\S]*?)\s*```/) ||
+                      cleanText.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+
+    if (!jsonMatch) {
+      console.error('[Parse] No JSON found in response');
+      throw new Error('Failed to extract JSON from response');
+    }
+
+    const extractedJson = jsonMatch[1].trim();
+    console.log('[Parse] Extracted JSON length:', extractedJson.length);
+    console.log('[Parse] First 200 chars:', extractedJson.substring(0, 200));
+
+    // Try parsing the extracted JSON
+    try {
+      const result = JSON.parse(extractedJson);
+      console.log('[Parse] Extracted JSON parse succeeded');
+      return result;
+    } catch (firstError) {
+      console.log('[Parse] Extracted JSON parse failed, applying fixControlCharacters...');
+
+      // If parsing fails, fix control characters
+      try {
+        const fixedJson = fixControlCharacters(extractedJson);
+        console.log('[Parse] After fixControlCharacters, first 200 chars:', fixedJson.substring(0, 200));
+        const result = JSON.parse(fixedJson);
+        console.log('[Parse] Fixed JSON parse succeeded');
+        return result;
+      } catch (secondError) {
+        console.error('[Parse] All parsing attempts failed');
+        console.error('[Parse] Original error:', firstError);
+        console.error('[Parse] After fix error:', secondError);
+        throw new Error(`Failed to parse JSON after all attempts: ${secondError}`);
+      }
+    }
+  }
+}
+
+/**
+ * Fix unescaped control characters in JSON string
+ * This function scans through JSON and properly escapes control characters within string literals
+ */
+function fixControlCharacters(jsonStr: string): string {
+  let result = '';
+  let inString = false;
+  let escapeNext = false;
+
+  for (let i = 0; i < jsonStr.length; i++) {
+    const char = jsonStr[i];
+    const charCode = char.charCodeAt(0);
+
+    // Handle escape sequences
+    if (escapeNext) {
+      result += char;
+      escapeNext = false;
+      continue;
+    }
+
+    if (char === '\\') {
+      result += char;
+      escapeNext = true;
+      continue;
+    }
+
+    // Toggle string mode
+    if (char === '"') {
+      result += char;
+      inString = !inString;
+      continue;
+    }
+
+    // If we're inside a string, check for control characters
+    if (inString && charCode < 32) {
+      // Escape control characters
+      switch (char) {
+        case '\n':
+          result += '\\n';
+          break;
+        case '\r':
+          result += '\\r';
+          break;
+        case '\t':
+          result += '\\t';
+          break;
+        case '\f':
+          result += '\\f';
+          break;
+        case '\b':
+          result += '\\b';
+          break;
+        default:
+          // For other control characters, use unicode escape
+          result += '\\u' + ('0000' + charCode.toString(16)).slice(-4);
+          break;
+      }
+    } else {
+      result += char;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Delay execution for specified milliseconds
+ */
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Calculate adaptive delay based on segment count and token consumption
+ *
+ * Gemini API Limits:
+ * - Free tier: 15 RPM (Requests Per Minute), 250,000 TPM (Tokens Per Minute)
+ * - Token consumption: ~15,000 tokens per request (with knowledge base)
+ *
+ * @param segmentIndex - Current segment index
+ * @param totalSegments - Total number of segments
+ * @param estimatedTokensPerRequest - Estimated tokens per request (default: 15000)
+ * @returns Delay time in milliseconds
+ */
+function calculateAdaptiveDelay(
+  segmentIndex: number,
+  totalSegments: number,
+  estimatedTokensPerRequest: number = 15000
+): number {
+  const TOKEN_LIMIT_PER_MINUTE = 250000;
+  const REQUEST_LIMIT_PER_MINUTE = 10; // Conservative estimate (free tier: 15 RPM)
+
+  // Delay based on token limit: (60s * tokens_per_request) / token_limit
+  const delayForTokenLimit = (60 * 1000 * estimatedTokensPerRequest) / TOKEN_LIMIT_PER_MINUTE;
+
+  // Delay based on request limit: 60s / request_limit
+  const delayForRequestLimit = (60 * 1000) / REQUEST_LIMIT_PER_MINUTE;
+
+  // Use the more conservative (larger) delay
+  let baseDelay = Math.max(delayForTokenLimit, delayForRequestLimit);
+
+  // For large batches (15+ segments), add 50% buffer to be extra safe
+  if (totalSegments > 15) {
+    baseDelay = baseDelay * 1.5;
+    console.log(`[Adaptive Delay] Large batch detected (${totalSegments} segments), applying 50% buffer`);
+  }
+
+  console.log(`[Adaptive Delay] Segment ${segmentIndex + 1}/${totalSegments}: ${Math.round(baseDelay)}ms`);
+  console.log(`  - Token limit delay: ${Math.round(delayForTokenLimit)}ms`);
+  console.log(`  - Request limit delay: ${Math.round(delayForRequestLimit)}ms`);
+  console.log(`  - Final delay: ${Math.round(baseDelay)}ms`);
+
+  return baseDelay;
+}
+
+/**
+ * GET /api/v2/evaluate
+ * API documentation and health check
+ */
+export async function GET() {
+  return NextResponse.json({
+    name: 'RAG-based Legal Compliance Evaluation API',
+    version: 'v2',
+    description: 'セグメント単位で薬機法・景表法・社内基準に基づいた法令遵守チェックを実行',
+    endpoints: {
+      POST: {
+        path: '/api/v2/evaluate',
+        description: 'セグメントの法令遵守評価',
+        requestBody: {
+          segments: 'Segment[] (required)',
+          productId: "'HA' | 'SH' (required)",
+          apiKey: 'string (required, Gemini API key)',
+          knowledgeContext: 'string (optional, pre-loaded knowledge)',
+        },
+        response: {
+          success: 'boolean',
+          data: {
+            evaluations: 'SegmentEvaluation[]',
+            summary: {
+              totalSegments: 'number',
+              evaluatedSegments: 'number',
+              compliantSegments: 'number',
+              violationCount: 'number',
+            },
+            productId: 'string',
+            processingTimeMs: 'number',
+          },
+        },
+      },
+    },
+    features: [
+      'RAG-based evaluation using knowledge base',
+      'Parallel processing with max 3 concurrent requests',
+      'Automatic retry on failure',
+      'Detailed violation identification with knowledge citation',
+      'Correction suggestions based on regulations',
+    ],
+    evaluationCriteria: [
+      '薬機法違反 (Pharmaceutical Affairs Law violations)',
+      '景表法違反 (Misleading Representations violations)',
+      '社内基準違反 (Internal standards violations)',
+    ],
+    example: {
+      request: {
+        segments: [
+          {
+            id: 'seg_001',
+            text: 'シワを改善する美容液',
+            type: 'claim',
+            position: { start: 0, end: 12 },
+            importance: 0.9,
+          },
+        ],
+        productId: 'HA',
+        apiKey: 'your-gemini-api-key',
+      },
+      response: {
+        success: true,
+        data: {
+          evaluations: [
+            {
+              segmentId: 'seg_001',
+              compliance: false,
+              violations: [
+                {
+                  type: '薬機法違反',
+                  severity: 'high',
+                  description: '「シワを改善」は医薬部外品の承認効能を超える表現です',
+                  referenceKnowledge: {
+                    file: '22_シワ表現についての規定と社内規定.txt',
+                    excerpt: 'シワ改善効果を謳えるのは承認を得た医薬部外品のみ',
+                  },
+                  correctionSuggestion: '「乾燥による小ジワを目立たなくする」等の表現に変更',
+                  confidence: 0.95,
+                },
+              ],
+              evaluatedAt: '2025-10-15T10:00:00.000Z',
+              processingTimeMs: 1500,
+            },
+          ],
+          summary: {
+            totalSegments: 1,
+            evaluatedSegments: 1,
+            compliantSegments: 0,
+            violationCount: 1,
+          },
+          productId: 'HA',
+          processingTimeMs: 2000,
+        },
+      },
+    },
+  });
+}

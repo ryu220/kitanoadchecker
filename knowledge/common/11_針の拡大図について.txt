@@ -1,0 +1,37 @@
+針の拡大図について
+
+## 針の拡大図について
+ディープパッチシリーズは商品によって針の形状が異なります。
+クリエイティブで針の拡大図を使用する際はそれぞれの針の画像を使用して下さい。
+
+### 『ヒアロディープパッチ』『リフィスト』
+```
+\\172.25.0.5\kisei\★商品撮影写真\★ヒアロディープパッチ
+```
+※『ヒアロディープパッチ』と『リフィスト』の針の画像が同じフォルダに入っておりますが、同じ形状の針なのでどちらの商品で使用しても問題ありません。
+![【レタッチ】20180515132304.jpg](https://image.docbase.io/uploads/db31d31a-77b7-43b4-9c74-a88a0372969f.jpg =400x)
+![200207\_hd\_needle.jpg](https://image.docbase.io/uploads/738c708a-3919-4631-aa0e-b1d4c674201e.jpg =400x)
+
+以下の画像も使用OK▼
+![image.png](https://image.docbase.io/uploads/9f74a013-a723-459c-9823-66270c2853dc.png =600x)
+※一見『ヒアロディープパッチ』っぽくない針に見えますが、形のばらつきによるものなのだそうで、使用OKです。
+
+
+### 『ミケンディープパッチ』『オデコディープパッチ』
+```
+\\172.25.0.5\kisei\★商品撮影写真\★ミケンディープパッチ\針
+```
+※『オデコディープパッチ』と『ミケンディープパッチ』が同じフォルダに入っておりますが、同じ形状の針なのでどちらの商品で使用しても問題ありません。
+![1.jpg](https://image.docbase.io/uploads/e65441a7-0ccc-40f1-9e0d-c82362d69c10.jpg =400x)
+![2.jpg](https://image.docbase.io/uploads/5decf6de-36e3-41a3-9c3e-4895ad5a3198.jpg =400x)
+![3.jpg](https://image.docbase.io/uploads/f25fbfcd-1b4e-4b2a-802d-1ffbdf3a0b47.jpg =400x)
+![4.jpg](https://image.docbase.io/uploads/8b58da2f-7a2f-421c-9733-aee5abdee66c.jpg =400x)
+![イメージ②.jpeg](https://image.docbase.io/uploads/0165373c-2a05-4c36-8e53-93354ba7af1f.jpeg =400x)
+
+
+### 『チークポアパッチ』
+```
+\\172.25.0.5\kisei\★商品撮影写真\★チークポアパッチ\スモールラボ提供画像
+```
+![2.5倍.jpg](https://image.docbase.io/uploads/6c71b8ec-a709-4064-8e39-47ec75545891.jpg =500x)
+![3.5倍.jpg](https://image.docbase.io/uploads/bcea2ea1-3713-4ddb-8c31-ee32760ac959.jpg =500x)

@@ -1,0 +1,734 @@
+[
+  {
+    "keyword": "最高のききめ",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| 最高のききめ、無類のききめ |無類、最高に効果があるという事実（エビデンス）があったとしても、効能効果又は安全性に関する最大級表現は薬機法上NGのため使用不可。  | 薬機法 |",
+    "source": "03_景表法について.txt",
+    "regulatoryCategory": "景表法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "無類のききめ",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| 最高のききめ、無類のききめ |無類、最高に効果があるという事実（エビデンス）があったとしても、効能効果又は安全性に関する最大級表現は薬機法上NGのため使用不可。  | 薬機法 |",
+    "source": "03_景表法について.txt",
+    "regulatoryCategory": "景表法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "注入",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "**OK例**　※「ヒアルロン酸」は保湿成分として　※「注入」は角質層まで",
+    "source": "06_注釈の入れ方について.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "肌への浸透",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "**「肌への浸透」等の表現**",
+    "source": "07_浸透の範囲について.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "高野豆腐",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "**「高野豆腐」「ビーカー」「7.5倍」「塗るクリーム」などの浸透方法や、他社製品と当社製品の違いを示す「他社比較表」等のコンテンツは、****他社製品の誹謗や他社と比較する広告に該当し、薬機法上NG****となります。**",
+    "source": "08_「塗る・刺すの浸透比較」や「他社比較」の表現・コンテンツについて（ディープパッチシリーズ）.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "塗る製品（方法）よりも刺す製品（方法）のほうが浸透する",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "「塗る製品（方法）よりも刺す製品（方法）のほうが浸透する」といった明らかな比較はもちろんのこと、「塗るだけでは浸透しにくい。刺すことで角質層まで浸透させる」といった暗示的な比較の場合も、他社の「塗る製品」の誹謗中傷に該当するためNG。",
+    "source": "08_「塗る・刺すの浸透比較」や「他社比較」の表現・コンテンツについて（ディープパッチシリーズ）.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "塗る製品",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "他社の「塗る製品」の誹謗中傷に該当するためNG。",
+    "source": "08_「塗る・刺すの浸透比較」や「他社比較」の表現・コンテンツについて（ディープパッチシリーズ）.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "男性専用",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "そのほか、「男性専用」「女性専用」「お子様専用」など、",
+    "source": "09_専用表現についての規定と当社規定.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "女性専用",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "そのほか、「男性専用」「女性専用」「お子様専用」など、",
+    "source": "09_専用表現についての規定と当社規定.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "専用",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "に対しては「専用」はNG。「用」としてください。",
+    "source": "09_専用表現についての規定と当社規定.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "効果を保証",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "※あくまでも一例であり、効能効果を保証するものではございません。**",
+    "source": "13_ビフォーアフターの社内表示規定.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "一般化粧品の効能効果の範囲外の使用前・使用後の写真の表記",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "「一般化粧品の効能効果の範囲外の使用前・使用後の写真の表記」がNGとされています。",
+    "source": "13_ビフォーアフターの社内表示規定.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "速効引き上げ×ハリ・うるおいを与える",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "▼直前に「速効引き上げ×ハリ・うるおいを与える」というコピーが入っているため、どちらに対してのBAかわからないのでNG。",
+    "source": "13_ビフォーアフターの社内表示規定.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "このパッチを週１回貼って寝ると・・・ピンッとハリのある若々しい印象に",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "→画像はフリー素材であるにも関わらず、前後の文章で「このパッチを週１回貼って寝ると・・・ピンッとハリのある若々しい印象に」と、あたかも商品を使った結果このようになったように見せており、明らかにBA（アフター）写真として使っているためNG。",
+    "source": "14_加工画像やフリー素材を使用する際の注意点.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "とある上まぶた引き上げジェルを塗った直後…！見えない特殊な膜でクッキリ！！",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "→画像はフリー素材を加工したものであるにも関わらず、前後の文章で「とある上まぶた引き上げジェルを塗った直後…！見えない特殊な膜でクッキリ！！」と、あたかも商品を使った結果このようになったように見せており、明らかにBA（アフター）写真として使っているためNG。",
+    "source": "14_加工画像やフリー素材を使用する際の注意点.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "肌の老化",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "↑「肌の老化」：アンチエイジングの暗示によりNG",
+    "source": "17_使用前後の写真に関する媒体毎の留意事項.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "血管が浮き出ています（注記なし）",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "「血管が浮き出ています（注記なし）」：解消方法が化粧品の効能内にあてはまらない為NG",
+    "source": "17_使用前後の写真に関する媒体毎の留意事項.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "長年の悩みが解消されました！",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "「長年の悩みが解消されました！」：体験談表示での効能表示によりNG",
+    "source": "17_使用前後の写真に関する媒体毎の留意事項.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "画像はイメージです",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "※「画像はイメージです」と記載して他者の写真を使うこともNG",
+    "source": "18_体験談について.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "抗シワ試験に合格",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "**「抗シワ試験に合格」の記載はNGとする。（2020年4月～）**",
+    "source": "19_効能評価試験についての規定と社内規定.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "抗シワ評価試験に合格",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "文章内で「抗シワ評価試験に合格」が記載されているためNG。",
+    "source": "20_効能評価試験の良い例とダメな例.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "日本香粧品学会抗シワ試験合格",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "「日本香粧品学会抗シワ試験合格」使用NG。",
+    "source": "20_効能評価試験の良い例とダメな例.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "抗シワ評価試験",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "↑「抗シワ評価試験」「日本香粧品学会」NG。",
+    "source": "20_効能評価試験の良い例とダメな例.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "シワを予防する",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "しわ予防・解消等の表現は、化粧品等の効能効果の範囲を逸脱するので行わないこと。化粧品では皮ふ深部（細胞レベル）での生理代謝機能に影響を与えて、加齢による影響を防ぐものはないとされているので、「シワを予防する」や「タルミを解消する」等の表現はできない。",
+    "source": "24_たるみ表現についての社内規定.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "たるみ",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "### 「たるみ」NG集",
+    "source": "24_たるみ表現についての社内規定.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "物理的皮膜効果による",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "→注釈で「物理的皮膜効果による」と記載していても、「根本から」と記載することで皮ふ深部での生理代謝昨日に影響を与えるような効果を暗示するためNG。",
+    "source": "24_たるみ表現についての社内規定.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "解消",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "→「解消」とすると、イコール改善と捉えられるため、注釈があってもNG。",
+    "source": "24_たるみ表現についての社内規定.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "クマ専用",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| クマ専用 | クマは部位ではないため専用表現はNG。 |",
+    "source": "25_クマ表現について.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "複雑な",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| 複雑なクマも対策できるクリームです！ | 「複雑な」と記載することで定義した以外のクマなども対策できると受け取れ効果外のためNG。",
+    "source": "25_クマ表現について.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "クマ悩みの救世主",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| クマ悩みの救世主とも言えるクリームなんです。 | 「クマ悩みの救世主」と記載することでクマが改善できるかのように受け取れ効果外のためNG。（注釈を記載している場合もNG。） |",
+    "source": "25_クマ表現について.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "若返り表現",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "※「若返り表現」や「効果の保証表現」として受け取れるような使用はNGです。",
+    "source": "27_若々しい印象や若見え表現について.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "フリー処方",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "→「フリー処方」と記載がありますが、正しくは「２つのフリー」、「２つの不使用」と「パッチテスト」であるためNG。この場合は、例えば、「フリー処方」を「5つのこだわり」というような感じに変更してください。",
+    "source": "29_成分のフリーや不使用や無添加の違い.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "ハリ成分",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "例えば、「ハリ成分」として配合されている成分に対し「潤い成分」と記載したり、「基剤」として配合されている成分に「ハリ成分」などと記載するのはNG！",
+    "source": "31_特定成分の特記表示.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "美容成分",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "「美容成分」「美肌成分」の表示は、配合目的としては認められないものの、全てがNGとなるわけではなく、",
+    "source": "31_特定成分の特記表示.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "これさえあれば",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "例えば「これさえあれば」、「安全性は確認済み」、「赤ちゃんにも安心」等の表現を用い、性別、年齢等の如何を問わず効能効果が確実であること又は安全であることを保証するような表現は認められない。なお、効能効果又は安全性を保証する表現については、明示的、暗示的を問わず認められない。",
+    "source": "32_保証表現についての規定.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "専門機関",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "「専門機関」という表現自体はNGではありません。",
+    "source": "35_専門機関などの医療行為を想起させる表現の使い方について.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "効果に関する満足度が高い",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| 満足度が高いからリピート率〇〇％ | 「効果に関する満足度が高い」＋「リピ率」は保証表現にあたるのでNGです。「使用感に関する満足度が高い」とした場合でも、当社のリピ率は年間定期から算出しているので、お客様の使用感満足度とは関係なく事実に反するためNGです |",
+    "source": "38_リピート率について.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "実質無料で試せる",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "**②「実質無料で試せる」など「お試し」表現と組み合わせた使用は、「購入せずに商品を試せる」など、無料体験や試行、一時的な申込みと受け取れるためNG。（たとえ前後関係や注釈等で「実質無料（実質0円）は全額返金保証を利用した場合による」等と記載していてもNG。）**",
+    "source": "40_「全額返金保証」「実質無料」「実質0円」の表示ルール.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "実質無料",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "**【「実質無料」表現のNG例①（直前直後に全額返金保証コンテンツがあるパターン）】**",
+    "source": "40_「全額返金保証」「実質無料」「実質0円」の表示ルール.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "お試し",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "「お試し」表現は、その表現自体が使用不可ということではありませんが、",
+    "source": "41_「お試し」「試供」等の表現について.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "お試し（＝単品や試行、一時的な申込み）",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "ボタンを押した消費者が、定期購入ではなく「お試し（＝単品や試行、一時的な申込み）」と誤認するおそれがあるためNG。",
+    "source": "41_「お試し」「試供」等の表現について.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "試供品はないの？",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "吹き出し部分で「試供品はないの？」と謳っており、購入せずに無料でお試しできる申込みであるかのような誤認を与えるためNG。",
+    "source": "41_「お試し」「試供」等の表現について.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "いつでも解約可能",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "そのため、補足説明を一切せずに「いつでも解約可能」等と謳うことは、**事実と異なる表示かつ誤認を与える表示であるため、特商法や景表法上NG**となります。",
+    "source": "43_解約に関する条件の表示について.txt",
+    "regulatoryCategory": "社内基準",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "しっかり消毒",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| しっかり○○ | 条件付きOK |「しっかり消毒」等、効果に対して「しっかり」と表示することは、効果を保証するような表現ではあるため、「しっかり（と）」という言葉を強調することはNG。 |",
+    "source": "52_薬機法_化粧品医薬部外品.txt",
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "対処",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "|（悩みについての） 対処法、対処 | NG | 「対処」は実際に起こった何らかの状況や事件に応じて適切な処置をとることを意味しており、治癒的な表現となり効果外のためNG。 |",
+    "source": "52_薬機法_化粧品医薬部外品.txt",
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "クリニックコンテンツ",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "また、医薬品と誤認させやすい化粧品（AIなど）や医薬部外品の広告での「クリニックコンテンツ」の使用は、たとえ、クリニックに行くほど悩んではないという意味であったとしても、その商品の目的、効果、形状などから医薬品と誤認させやすいものであることから、医薬品的な効果の暗示や、クリニックの施術と同等の効果が得られると受け取れる恐れがあるためNG 。|",
+    "source": "52_薬機法_化粧品医薬部外品.txt",
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "口コミ",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "**（答）**医薬品は個々人のそのときの症状に合わせて使用されるべきものであり、体質や症状の異なる他人からの効能・効果に関する「口コミ」に基づいて使用すると、不適正な使用を招くおそれがあることから、医薬品の効能・効果に関する「口コミ」を禁止するものである。",
+    "source": "厚生労働省_医薬品の販売業等に関するＱ＆Ａについて_20140331.txt",
+    "regulatoryCategory": "薬機法",
+    "subCategory": "厚労省適正広告基準"
+  },
+  {
+    "keyword": "法",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "医薬品、医療機器等の品質、有効性及び安全性の確保等に関する法律（昭和35年法律第145号。以下「法」という。）第14条又は第23条の2の5若しくは第23条の25の規定に基づく承認並びに法第23条の2の23の規定に基づく認証（以下「承認等」という。）を受けた名称又は一般的名称以外の名称を、別に定める場合を除き使用してはならない。ただし、一般用医薬品及び医薬部外品においては、共通のブランド製品の共通部分のみを用いることは差し支えない。",
+    "source": "厚生労働省_医薬品等適正広告基準の改正について（薬生発0929第4号）_20170929.txt",
+    "regulatoryCategory": "薬機法",
+    "subCategory": "厚労省適正広告基準"
+  },
+  {
+    "keyword": "事業者の表示",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "A:表示内容全体から、一般消費者にとって「事業者の表示」であることが明瞭となっていればよく、「広告」、「宣伝」、「プロモーション」、「PR」以外の用語を記載する方法が禁止されているものではありません。",
+    "source": "消費者庁_ステルスマーケティングに関するQ&A_20230328.txt",
+    "regulatoryCategory": "景表法",
+    "subCategory": "消費者庁ガイドライン"
+  },
+  {
+    "keyword": "本法",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "不当景品類及び不当表示防止法（昭和37 年法律第134 号。以下「本法」という。本法の引用に際しては、不当景品類及び不当表示防止法の一部を改正する法律（令和５年法律第29 号。以下「改正法」という。）による改正後の条文を引用する。）は、事業者が、不当な表示を禁止する本法「第五条の規定に違反する行為（同条第三号に該当する表示に係るものを除く。〔略〕）」（以下「課徴金対象行為」という。）をしたときは、消費者庁長官（本法第38 条第1 項の規定により内閣総理大臣の権限を委任された消費者庁長官をいう。以下同じ。）は、その他の要件を満たす限り、当該事業者に対し、課徴金の納付を命じなければならないことを定めている（本法第８条第１項本文。以下同項本文の規定による命令を「課徴金納付命令」という。）。",
+    "source": "消費者庁_不当景品類及び不当表示防止法第8条（課徴金納付命令の基本的要件）に関する考え方_20240418.txt",
+    "regulatoryCategory": "景表法",
+    "subCategory": "消費者庁ガイドライン"
+  },
+  {
+    "keyword": "商品・サービスの内容",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "(1) 景品表示法第５条第１号は、商品・サービスの品質、規格その他の内容（以下「商品・サービスの内容」という。）について、一般消費者に対して実際のものよりも著しく優良であると示すこと、又は一般消費者に対して事実に相違して当該事業者と競争関係にある他の事業者に係るものよりも著しく優良であると示すことにより、不当に顧客を誘引し、公正な競争を阻害するおそれがあると認められる表示を不当表示として禁止している。",
+    "source": "消費者庁_不当景品類及び不当表示防止法第７条第２項の運用指針 ―不実証広告規制に関する指針― _20160401.txt",
+    "regulatoryCategory": "景表法",
+    "subCategory": "消費者庁ガイドライン"
+  },
+  {
+    "keyword": "指定告示",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "本法第５条（第４条第１項）第１号又は２号に掲げるもの（優良誤認表示・有利誤認表示）のほか、商品又は役務の取引に関する事項について一般消費者に誤認されるおそれがある表示であって、不当に顧客を誘引し、一般消費者による自主的かつ合理的な選択を阻害するおそれがあると認めて内閣総理大臣が指定するもの（指定が告示によることから、「指定告示」と呼ばれる。）も不当な表示として禁止されている。",
+    "source": "消費者庁_景品表示法における違反事例集（平成28年２月）_20160201.txt",
+    "regulatoryCategory": "景表法",
+    "subCategory": "消費者庁ガイドライン"
+  },
+  {
+    "keyword": "効能評価試験済み",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| <span style=\"color: #d61b09\">乾燥による小じわを目立たなくする</span> | 効能評価試験済みの商品のためOK。記載する場合は必ず<mark>「効能評価試験済み」</mark>も併記すること。また、「効能評価試験済み」の文字は強調表現（文字色を変える、太字にするなど）はNGです。 |薬機法  |",
+    "source": "55_【薬事・景表法・社内ルールまとめ】『ヒアロディープパッチ』　.txt",
+    "allowedProducts": [
+      "HA"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "※乾燥や古い角質によるくすみ、ハリが不足した暗い目の下",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| <span style=\"color: #d61b09\">クマ</span> | クマ表現をする場合は必ず「※乾燥や古い角質によるくすみ、ハリが不足した暗い目の下」という注記を入れて下さい。ただし、注釈で定義をつけたとしても、商品を使用したことで結果、クマが改善・予防できるかのような表現は、化粧品効能の逸脱となるため使用不可。詳しくは＜[クマ表現について](https://kitanotatsujin.docbase.io/posts/2687097#クマ表現について)＞を参照。 |薬機法  |",
+    "source": "55_【薬事・景表法・社内ルールまとめ】『ヒアロディープパッチ』　.txt",
+    "allowedProducts": [
+      "HA"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "汚い",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| <span style=\"color:#d70910;\">加齢を表す表現（汚い、オジサン化等）について</span> | 加齢の概念を表す言葉として「汚い」「オジサン化」といった表現を表示する際、「老け見え」や「年齢感」と比較すると具体性が高く感じ取られる場合があるため、「※ハリが不足した状況」や「※うるおいやハリ・弾力が不足した状態」という注釈を記載すること。ただし、「オジサン化に逆らう」など文脈によって若返りや老化防止を想起させるような表現は、たとえ注釈で補足説明していても効果外となるため、引き続き使用NG。<br/><span style=\"color:#1453c6;\">**＜OK例＞**</span><br/>・目の下オジサン化※対策　※オジサン化：うるおいやハリ・弾力が不足した状態<br/><span style=\"color:#d70910;\">**＜NG例＞**</span><br/>・目の下オジサン化※を阻止　※オジサン化：うるおいやハリ・弾力が不足した状態<br/>→オジサン化を阻止という表現は、老化防止を想起させ効果外のため 。 | 薬機法 |",
+    "source": "55_【薬事・景表法・社内ルールまとめ】『ヒアロディープパッチ』　.txt",
+    "allowedProducts": [
+      "HA"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "ほうれい線",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "|  <span style=\"color: #d61b09\">（悩みとしての）ほうれい線</span> | 部位として「ほうれい線」というのはOKですが、悩みとしての「ほうれい線」と捉えられるものはNGです。 |",
+    "source": "55_【薬事・景表法・社内ルールまとめ】『ヒアロディープパッチ』　.txt",
+    "allowedProducts": [
+      "HA"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "注射が怖い",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| <span style=\"color: #d61b09\">ヒアルロン酸注射が怖い人へ・美容整形は怖いと思ってる人へ</span> | 「注射が怖い」、「手術が嫌」など、医療行為的な説明と不安感を併せて、それらが嫌ならHDを進めますというような訴求は、診療行為への誹謗中傷や、不安感を与える広告、また、HDに注射や手術などで得られる効果があると受け取られるおそれなどがあるのでNG。訴求する場合は、不安感を与える用語は避け、「ヒアルロン酸注射はまだちょっと‥」などとし、「先ずは、試しにヒアルロン酸パッチから、、、」というような感じで訴求する場合はOK。（※①医療行為を否定（機会を失わせる）に受け取られないこと　②医療行為の内容と訴求する化粧品の成分などが繋がるように説明すること　これらを満たすことで、医療行為の効果があると受け取られないようにし、また、診療機会を失わせる広告と受け取られないようして薬機法のリスクを減らす）",
+    "source": "55_【薬事・景表法・社内ルールまとめ】『ヒアロディープパッチ』　.txt",
+    "allowedProducts": [
+      "HA"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "治療薬",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "[治療薬・改善薬等と受け取れる表現について](https://kitanotatsujin.docbase.io/posts/2193107#%E6%B2%BB%E7%99%82%E8%96%AC%E6%94%B9%E5%96%84%E8%96%AC%E7%AD%89%E3%81%A8%E5%8F%97%E3%81%91%E3%81%A8%E3%82%8C%E3%82%8B%E8%A1%A8%E7%8F%BE%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6)",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "殺菌",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| <span style=\"color: #d61b09\">殺菌作用で消毒<br>殺菌して消毒<br>殺菌→消毒 </span> | 本製品は、殺菌すること（作用機序）で、結果、消毒（効能効果）するものであるため使用可能。あくまでも「殺菌」は「消毒」効果の作用機序なので、「殺菌」が作用機序ではなく、効能効果のように受け取れるような表現はNG。</div></div> | 薬機法<br>景表法 |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "菌や汚れで不潔な状態の爪",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "|<span style=\"color:#d70910;\">汚い爪をキレイに！<br>爪をキレイにできる消毒ジェル<br>塗るだけで汚い爪をキレイにできる消毒ジェル</span>|①広告全体感や前後関係で、汚い爪が「菌や汚れで不潔な状態の爪」のことを指しており、そのような爪を洗浄消毒することでキレイすると受け取れる場合の「汚い爪をキレイに」であれば、承認されている効能効果「手指・皮膚の洗浄・消毒」の範囲内であると受け取れるため<span style=\"color:#1453c6;\">**OK**</span>。<br>②広告全体感や前後関係で、汚い爪が「形状や色が汚い状態の爪」のことを指しており、そのような爪をキレイすると受け取れる場合の「汚い爪をキレイに」は、汚い爪の形状や色の改善・治療を想起させ、医薬品的な効果があると受け取れるため<span style=\"color:#d70910;\">**NG**</span>。 |薬機法|",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "無毒/無毒化",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| <span style=\"color:#d70910;\">無毒<br>無毒化</span> | 「無毒/無毒化」表現の考え方は以下①②のとおりとする。<br>**①**<mark>効能効果である「消毒」という意味での表現はOK。</mark><br>※無毒/無毒化は、殺菌作用により、人体に悪影響（有害）を及ぼさない菌量や菌の毒量を減らし無害/無毒/無毒化/消毒（効能効果）すること。<br>OK例）<br>・爪周りを殺菌して無毒化する<br>→爪の周りを殺菌（作用）して、結果、無毒化する（消毒/効果）<br>・爪周りに塗って菌を無毒化<br>**②**<mark>作用機序としての表現はNG。（無毒/無毒化は①の考え方のとおり効能効果のため）</mark><br>※本製品は、殺菌作用の結果、消毒（無毒化）することが効果です。そのため、無毒化作用の結果として、爪周りの症状を治療する解毒剤/治療薬と受け取れないようにすること。また、「無毒」だけを表示し、承認された効能効果そのものが「無毒」や、作用機序が「無毒」であると受けとられないようにすること。（「無毒」だけを表示した訴求は、「解毒剤」、「治療薬」などとなり効果外や作用外となるおそれがあるため。）<br>NG例）<br>・無毒化作用で爪周りをキレイに！<br>→無毒化（作用）して、きれいな爪周りにする（効果）となり、解毒剤や治療薬と受け取れる<br>・無毒化ジェル<br>→無毒だけを表示しており、無毒そのものが承認された効能効果であると受け取れ効果外 | 薬機法 |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "スゥーッと感動",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "|<span style=\"color:#d70910;\">スゥ～っと感動！</span>|前後の文脈から、汚れや菌により不潔な状態の爪周りに塗ることで、「スゥーッと感動」等という趣旨の表現であればOKとする<br>OK例）<br>「塗ったらスゥ～っと感動！爪消毒ジェル」<br>「汚い爪に塗ると、スゥ～と感動！」<br>「菌のいる爪に塗ると、スゥ～と感動！」<br>NG例）<br>「ボロボロ爪に塗るとスゥ～と感動！」| 薬機法<br>景表法 |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "手指・皮膚の洗浄・消毒",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| <span style=\"color:#d70910;\">根本<br>根本的</span>|承認された効能効果「手指・皮膚の洗浄・消毒」の範囲内であれば「根本（こんぽん）」OK。特定の部位（爪の根本<span style=\"font-size:80%;\">（ねもと）</span>など）を想起させる意味合いで使われている場合はNG。|薬機法 |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "不潔なイメージを他人にもたれると恥ずかしい",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "|<span style=\"color:#d70910;\">恥ずかしい</span>| 菌というものは目に見えないものであるため、爪に菌が繁殖しても外観に現れるものではありません。したがって、菌という汚いイメージのある存在が定着していることで、「不潔なイメージを他人にもたれると恥ずかしい」という概念であればOK<br>OK例）<br>「不潔に思われるのは恥ずかしい」<br>NG例）<br>「見られると恥ずかしい」<br>爪トラブルの見た目や状況を想起させるためNG。 |薬機法|",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "諦める、諦めかけていた、諦めていた",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| <span style=\"color:#d70910;\">諦める<br/>諦めかけていた<br/>諦めていた<br/>という表現について</span> | 広告・LPにおいて、「諦める、諦めかけていた、諦めていた」という表示をする際、前後関係や文脈によって「ケアの方法が分からないからと読み取れる」場合は表示OKとする。<br><span style=\"color:#1453c6;\">**＜OK例＞**</span><br>「いろいろ試したけど、もう諦めるしかないのか…」（他社製品と比較している場合はNG）<br>「諦めていたけど感動！」<br>「正直、諦めていました。」<br>「諦めかけていた爪悩み」<br><span style=\"color:#d70910;\">**＜NG例＞**</span><br>「医薬品を試したけどダメだったので諦めていました。」<br/>→医薬品でダメだったものを医薬部外品で対策できると受け取れ効果外のため。 |薬機法  |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "菌が存在して不潔な状態の爪周りを消毒することでキレイにする",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "|<span style=\"color:#d70910;\">激変</span>  |前後関係や文脈によって「菌が存在して不潔な状態の爪周りを消毒することでキレイにする」といった意味で受け取れる「激変」表現は表示OKとする。<br/><span style=\"color:#1453c6;\">**＜OK例＞**</span><br/>「汚くなった爪<span style=\"font-size:80%;\">※</span>が特殊な殺菌<span style=\"font-size:80%;\">※1</span>ジェルで激変　<span style=\"font-size:80%;\">※汚い：菌で不潔な状態　※1 殺菌：消毒の作用機序として</span>」<br/>「不潔な爪が特殊な殺菌<span style=\"font-size:80%;\">※</span>ジェルで激変　<span style=\"font-size:80%;\">※殺菌：消毒の作用機序として</span>」<br/><span style=\"color:#d70910;\">**＜NG例＞**</span><br/>「汚くなった爪が特殊な殺菌<span style=\"font-size:80%;\">※</span>ジェルで激変　<span style=\"font-size:80%;\">※殺菌：消毒の作用機序として</span>」<br/>→汚くなった爪に対して説明がないため、見た目が汚い状態の爪のことと受け取れ、「見た目が汚い状態の爪が殺菌ジェルで激変＝爪水虫が改善」という暗示になり効果外のため。 |  薬機法 |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "爪の中まで浸透",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| <span style=\"color:#d70910;\">爪に染み込むという意味での浸透表現、浸透を想起させる表現<br>爪周り、爪ぎわや皮膚等に浸透して消毒する等の表現</span> | 爪に染み込むという意味での浸透表現（「爪の中まで浸透」「爪にも浸透」等）や、浸透を想起させる表現（「爪の中まで馴染む」「爪に染み込む」等）はNG。<br>また、浸透して殺菌や消毒効果があると受け取れる表現は効果外のためNG。 | 薬機法<br>景表法 |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "爪に潜む",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| <span style=\"color:#d70910;\">「爪に潜む」「爪周りに潜む」等、爪の中に菌がいると受け取れる表現</span> | 本製品は爪への浸透が謳えないため、爪の中に菌がいると受け取れる表現は効果外でありNG。<br>ただし、「爪に潜む菌」が、あくまでも、爪の表面や爪ぎわにいる菌のことであると広告全体感や前後関係、イラスト等で受け取れる場合はOK。 | 薬機法<br>景表法 |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "徹底○○",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| <span style=\"color:#d70910;\">徹底消毒  | 「徹底○○」等の表現は効果の保証になるためNGです。 | 薬機法 |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "手指や皮膚を消毒（洗浄）して一時的にキレイにする",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| <span style=\"color:#d70910;\">きれいな爪周りを目指せる・きれいな爪周りに導く</span> | 「手指や皮膚を消毒（洗浄）して一時的にキレイにする」という表現は可能ですが、「キレイな爪周りを目指す」という表現は汚い爪周りをキレイにできる（改善できる）かのような印象を与えるためNG。 | 薬機法<br>景表法 |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "爪床",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| <span style=\"color: #d61b09\">爪床<br>爪母</span> | 本製品は爪への浸透が謳えないため、「爪床」「爪母」等も効果外でありNG。 | 薬機法<br>景表法 |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "強力な・・・",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| <span style=\"color: #d61b09\">最強/強力/強い殺菌力</span> | 効能効果の表現で「強力な・・・」、「強い・・・」の類の最大級は表現NGです。 | 薬機法 |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "放置したらどんどん汚くなってしまい、今では人前に出せない~",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| <span style=\"color:#d70910;\">「放置したらどんどん汚くなってしまい、今では人前に出せない~」等症状が悪化していくような表現</span> | 状態が悪くなっている等の表現は水虫など疾病を想起させまた水虫等の治療薬とも受け取れるためNG。 | 薬機法<br>景表法 |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  },
+  {
+    "keyword": "爪周りトラブルに特化した",
+    "category": "prohibited",
+    "severity": "high",
+    "description": "| <span style=\"color:#d70910;\">(爪まわり)トラブルに特化した~</span> | 本製品は、手指や皮膚の洗浄/消毒を目的とした商品であり、爪トラブルに特化した薬用ジェルではないため。「爪周りトラブルに特化した」という表現はそれらを改善できるようなイメージを与え、そもそも本製品の使用目的とは異なるためNG。 | 薬機法<br>景表法 |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法",
+    "subCategory": "自社基準"
+  }
+]

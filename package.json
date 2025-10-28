@@ -1,0 +1,67 @@
+{
+  "name": "ad-legal-checker",
+  "version": "0.1.0",
+  "description": "Advanced Ad Copy Legal Compliance Checker - 広告文リーガルチェックツール",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "dev:old": "tsx src/index.ts",
+    "build": "next build",
+    "build:old": "tsc",
+    "start": "sh scripts/startup.sh",
+    "start:prod": "next start",
+    "test": "vitest",
+    "test:guinness-frontend": "tsx scripts/test-guinness-frontend.ts",
+    "clean-knowledge": "tsx scripts/clean-knowledge-html.ts",
+    "lint": "next lint",
+    "lint:old": "eslint . --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit",
+    "upload-knowledge": "tsx scripts/upload-knowledge.ts",
+    "upload-knowledge:ha": "tsx scripts/upload-knowledge.ts HA",
+    "upload-knowledge:sh": "tsx scripts/upload-knowledge.ts SH",
+    "upload-knowledge:all": "tsx scripts/upload-knowledge.ts all",
+    "setup:vector-db": "tsx scripts/setup-vector-db.ts",
+    "setup:vector-db:clear": "CLEAR_EXISTING=true tsx scripts/setup-vector-db.ts",
+    "check-env": "tsx scripts/check-environment.ts"
+  },
+  "keywords": [
+    "agentic-os",
+    "autonomous"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "chromadb": "^3.0.17",
+    "dotenv": "^17.2.3",
+    "next": "^14.2.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "react-markdown": "^9.0.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "@vitest/coverage-v8": "^3.2.4",
+    "autoprefixer": "^10.4.0",
+    "eslint": "^8.54.0",
+    "eslint-config-next": "^14.2.0",
+    "happy-dom": "^20.0.1",
+    "jsdom": "^27.0.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "@chroma-core/default-embed": "npm:@types/node@*"
+  }
+}

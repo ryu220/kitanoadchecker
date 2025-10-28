@@ -1,0 +1,192 @@
+[
+  {
+    "keyword": "保証",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "禁止（保証表現）: | ~だからリピート率◯％ | ①リピート率の理由が効能効果、安全性の保証、効果外の場合、薬機法上不可。",
+    "source": "03_景表法について.txt",
+    "regulatoryCategory": "景表法"
+  },
+  {
+    "keyword": "シワ",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "パッチ商品のみ + 注釈必須: （例：「貼るだけで効果があるから」「シワが消えるから」）",
+    "source": "03_景表法について.txt",
+    "regulatoryCategory": "景表法"
+  },
+  {
+    "keyword": "最高",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "禁止（最上級表現）: | 最高のききめ、無類のききめ |無類、最高に効果があるという事実（エビデンス）があったとしても、効能効果又は安全性に関する最大級表現は薬機法上NGのため使用不可。  | 薬機法 |",
+    "source": "03_景表法について.txt",
+    "regulatoryCategory": "景表法"
+  },
+  {
+    "keyword": "無類",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "禁止（最上級表現）: | 最高のききめ、無類のききめ |無類、最高に効果があるという事実（エビデンス）があったとしても、効能効果又は安全性に関する最大級表現は薬機法上NGのため使用不可。  | 薬機法 |",
+    "source": "03_景表法について.txt",
+    "regulatoryCategory": "景表法"
+  },
+  {
+    "keyword": "浸透",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "注釈チェック: | ◯時間で浸透 | 時間を特定していその時間内に浸透するという訴求は効能効果の保証となるため、事実（エビデンス）がある場合も薬機法上使用不可。 | 薬機法 |",
+    "source": "03_景表法について.txt",
+    "regulatoryCategory": "景表法"
+  },
+  {
+    "keyword": "合格",
+    "category": "mandatory",
+    "severity": "medium",
+    "description": "文脈チェック（試験合格は不可）: ただし、「（５６）乾燥による小ジワを目立たなくする。」は抗シワ試験（効能評価試験）に合格した商品だけが表示できます。",
+    "source": "05_化粧品の効能効果（56項目）について.txt",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "シミ",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "承認済み商品のみ + 注釈必須: （37）日やけによるシミ、ソバカスを防ぐ。",
+    "source": "05_化粧品の効能効果（56項目）について.txt",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "承認",
+    "category": "mandatory",
+    "severity": "medium",
+    "description": "条件付き可: 「乾燥による小じわを目立たなくする」については、承認内ではあるものの、",
+    "source": "05_化粧品の効能効果（56項目）について.txt",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "注入",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "禁止（医療行為）: **OK例**　※「ヒアルロン酸」は保湿成分として　※「注入」は角質層まで",
+    "source": "06_注釈の入れ方について.txt",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "クマ",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "注釈必須: **・効能効果に関して効果外や誤解を与えるような場合（クマ、物理的効果、配合目的等）**",
+    "source": "06_注釈の入れ方について.txt",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "たるみ",
+    "category": "mandatory",
+    "severity": "medium",
+    "description": "特定商品のみ: 「まぶた整形ジェル　口コミ絶賛の超強力たるみ対策」",
+    "source": "06_注釈の入れ方について.txt",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "確実",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "禁止（保証表現）: 浸透等の表現は、化粧品の効能効果の発現が確実であるかのような暗示、",
+    "source": "07_浸透の範囲について.txt",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "予防",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "禁止（医薬品的）: ・「メラニンの生成を抑え、シミ、ソバカスを防ぐ」や「ひび・あかぎれを防ぐ」等の予防的効能を表現する場合。",
+    "source": "12_ビフォーアフターの写真に関する規定.txt",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "厚生労働省",
+    "category": "mandatory",
+    "severity": "medium",
+    "description": "条件付き可: 【関連法令等】　「医薬品等広告に係る適正な監視指導について（Q&A）」（平成30年8月8日　事務連絡　厚生労働省医薬・生活衛生局監視指導・麻薬対策課）",
+    "source": "12_ビフォーアフターの写真に関する規定.txt",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "解消",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "禁止（医薬品的）: 「血管が浮き出ています（注記なし）」：解消方法が化粧品の効能内にあてはまらない為NG",
+    "source": "17_使用前後の写真に関する媒体毎の留意事項.txt",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "治療",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "禁止（医薬品的）: ・医療が必要でないかのような（治療の機会を失わせる）表現",
+    "source": "18_体験談について.txt",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "改善",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "禁止（医薬品的）: 「カイテキオリゴを飲んで便通が改善されました。毎日スッキリできて気持ち良いです。」",
+    "source": "18_体験談について.txt",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "そばかす",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "承認済み商品のみ + 注釈必須: 「メラニンの生成を抑え、シミ・そばかすを防ぐ」の効果効能で承認されている場合は、",
+    "source": "23_シミ訴求について.txt",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "くすみ",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "注釈必須: 「クマ」については、「くすみ」と同じくメーキャップ効果に関すること以外の表現は、化粧品の効果外となるため、表現はできない。そのため、メーキャップ以外の製品でクマを表現する場合は、クマの定義を[以下](https://kitanotatsujin.docbase.io/posts/2448057#%E3%82%AF%E3%83%9E%E3%81%A8%E3%81%84%E3%81%86%E8%A1%A8%E7%8F%BE%E3%82%92%E4%BD%BF%E3%81%84%E3%81%9F%E3%81%84%E6%99%82)のように明確にし、あくまでも化粧品の効能効果の範囲内であることが分かるようにすること。",
+    "source": "25_クマ表現について.txt",
+    "regulatoryCategory": "社内基準"
+  },
+  {
+    "keyword": "消毒",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "SH商品のみ + 注釈必須: | しっかり○○ | 条件付きOK |「しっかり消毒」等、効果に対して「しっかり」と表示することは、効果を保証するような表現ではあるため、「しっかり（と）」という言葉を強調することはNG。 |",
+    "source": "52_薬機法_化粧品医薬部外品.txt",
+    "regulatoryCategory": "薬機法"
+  },
+  {
+    "keyword": "殺菌",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "SH商品のみ + 注釈必須: ・神すぎる殺菌力|",
+    "source": "52_薬機法_化粧品医薬部外品.txt",
+    "regulatoryCategory": "薬機法"
+  },
+  {
+    "keyword": "染み込む",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "浸透の言い換え - 注釈チェック: | <span style=\"color:#d70910;\">爪に染み込むという意味での浸透表現、浸透を想起させる表現<br>爪周り、爪ぎわや皮膚等に浸透して消毒する等の表現</span> | 爪に染み込むという意味での浸透表現（「爪の中まで浸透」「爪にも浸透」等）や、浸透を想起させる表現（「爪の中まで馴染む」「爪に染み込む」等）はNG。<br>また、浸透して殺菌や消毒効果があると受け取れる表現は効果外のためNG。 | 薬機法<br>景表法 |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法"
+  },
+  {
+    "keyword": "最強",
+    "category": "mandatory",
+    "severity": "high",
+    "description": "禁止（最上級表現）: | <span style=\"color: #d61b09\">最強/強力/強い殺菌力</span> | 効能効果の表現で「強力な・・・」、「強い・・・」の類の最大級は表現NGです。 | 薬機法 |",
+    "source": "77_【薬事・景表法・社内ルールまとめ】薬用『クリアストロングショット アルファ』.txt",
+    "allowedProducts": [
+      "SH"
+    ],
+    "regulatoryCategory": "薬機法"
+  }
+]
