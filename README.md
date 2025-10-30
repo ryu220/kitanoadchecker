@@ -16,8 +16,8 @@
 
 ### ✅ 主要機能
 
-- **🤖 AI自動セグメント分割**: Gemini 1.5 Proによる広告文の意味単位自動分割
-- **📚 RAGベース評価**: 1,333件のナレッジから関連法規制を動的検索
+- **🤖 AI自動セグメント分割**: Gemini 2.5 Flash Liteによる広告文の意味単位自動分割
+- **📚 RAGベース評価**: 130ナレッジファイルから~5,129チャンク生成、関連法規制を動的検索
 - **🔍 4層チェックエンジン**: NGキーワード → 注釈解析 → RAG検索 → AI判定
 - **📋 詳細レポート生成**: 違反箇所・重大度・修正案・法的根拠を明示
 - **🎯 ランキング表現検出**: 「1位」「NO.1」等のエビデンス必須表現を自動検出（Issue #36対応）
@@ -35,17 +35,19 @@
 **42商品カテゴリ対応**: AI, CA, CH, CK, CR, DS, EA, FS, FV, FZ, GG, HA, HB, HL, HP, HR, HS, HT, JX, KF, KJ, LI, LK, LM, MD, ME, MI, MW, NM, NO, NW, OO, OP, PS, PT, RV, SC, SH, SI, SS, YS, ZS
 
 **⭐ 高度対応商品（専用ナレッジ装備）**:
-- **HA**: ヒアロディープパッチ（11ファイル）
-- **SH**: クリアストロングショット アルファ（8ファイル）
+- **HA**: ヒアロディープパッチ（7ファイル）
+- **SH**: クリアストロングショット アルファ（3ファイル）
+- **共通ナレッジ**: 120ファイル（薬機法・景表法・社内ルール）
 
 ## 技術スタック
 
-- **フロントエンド**: Next.js 14 (React 18)
+- **フロントエンド**: Next.js 14.2.33 (React 18)
 - **バックエンド**: Next.js API Routes
-- **データベース**: ChromaDB (Vector Database)
-- **AI/ML**: Google Gemini API
+- **データベース**: ChromaDB 3.0.17 (Vector Database, collection: ad_checker_knowledge)
+- **AI/ML**: Google Gemini API (gemini-2.5-flash-lite)
+- **Embedding**: text-embedding-004 (vectorization)
 - **言語**: TypeScript (strict mode)
-- **デプロイ**: Railway / Docker Compose対応
+- **デプロイ**: Koyeb / Docker Compose対応
 
 ## クイックスタート
 
@@ -101,12 +103,14 @@ npm run check-env
 
 | ドキュメント | 内容 | 対象読者 |
 |------------|------|---------|
-| **[01_OVERVIEW.md](docs/delivery/01_OVERVIEW.md)** | システム概要・機能説明・導入効果 | 全員（必読） |
+| **[00_DELIVERY_PACKAGE_MAP.md](docs/delivery/00_DELIVERY_PACKAGE_MAP.md)** | 📦 納品物パッケージマップ・ファイル一覧 | 全員（必読） |
+| **[01_OVERVIEW.md](docs/delivery/01_OVERVIEW.md)** | システム概要・機能説明・導入効果 | 全員 |
 | **[02_SETUP_GUIDE.md](docs/delivery/02_SETUP_GUIDE.md)** | 環境構築・初回セットアップ手順（約30分） | 開発者・運用担当者 |
 | **[03_OPERATION_MANUAL.md](docs/delivery/03_OPERATION_MANUAL.md)** | 日常運用・Web UI操作・API利用方法 | エンドユーザー・運用担当者 |
 | **[04_ISSUE_36_FIX.md](docs/delivery/04_ISSUE_36_FIX.md)** | ランキング表現検出機能の技術詳細 | 開発者 |
 | **[05_FEATURE_LIST.md](docs/delivery/05_FEATURE_LIST.md)** | 全機能一覧・チェック項目詳細 | 全員 |
 | **[06_TROUBLESHOOTING.md](docs/delivery/06_TROUBLESHOOTING.md)** | トラブルシューティング・FAQ | 運用担当者 |
+| **[07_TEST_CASES.md](docs/delivery/07_TEST_CASES.md)** | 🧪 代表テストケース集（実例ベース） | テスト担当者・運用担当者 |
 | **[RESTORE_POINT_20251030.md](RESTORE_POINT_20251030.md)** | システム完全復元ポイント | 開発者（緊急時） |
 
 ## プロジェクト構造
@@ -173,18 +177,27 @@ curl -X POST http://localhost:3000/api/v2/evaluate-batch \
 
 ## 本番デプロイ
 
-### Railway（推奨）
+### Koyeb（推奨）
 
-詳細な手順は [Railway デプロイガイド](docs/02_DEPLOYMENT_RAILWAY.md) を参照。
+本システムはKoyebでの本番デプロイに対応しています。詳細な手順は [デプロイガイド](docs/delivery/08_DEPLOYMENT_GUIDE.md) を参照。
 
 #### クイックスタート:
 
-1. Railwayアカウント作成
-2. GitHubリポジトリ連携
-3. ChromaDBサービス追加
-4. 環境変数設定（GEMINI_API_KEY, CHROMA_URL）
-5. デプロイ実行
-6. Vector DB初期化（初回のみ）
+1. **Koyebアカウント作成** - https://www.koyeb.com/
+2. **GitHubリポジトリ連携** - ryu220/kitanoadcheckerを連携
+3. **ChromaDBサービス追加** - Docker Serviceとして追加
+4. **環境変数設定**
+   - `CHROMA_URL`: ChromaDBサービスのinternal URL
+   - `GEMINI_API_KEY`: 本番環境では**不要**（ユーザーがUI経由で提供）
+5. **デプロイ実行** - 自動ビルド・デプロイ
+6. **Vector DB初期化（初回のみ）** - `/api/v2/admin/init-vector-db` エンドポイント実行
+
+### Docker Compose（ローカル本番環境）
+
+```bash
+docker-compose up --build
+# http://localhost:3000 でアクセス
+```
 
 ## 保守・運用
 
@@ -231,11 +244,33 @@ npm run setup:vector-db
 - Google AI Studioでクォータ確認
 - 有料プランへの移行を検討
 
-## セキュリティ
+## セキュリティと環境変数
+
+### 環境変数設定
+
+本システムでは以下の環境変数を使用します:
+
+```bash
+# ローカル開発時（Vector DB初期化のみ必須）
+GEMINI_API_KEY=your_api_key_here
+
+# ChromaDB接続先
+CHROMA_URL=http://localhost:8000  # ローカル開発
+CHROMA_URL=http://chroma:8000     # 本番Docker内部
+```
+
+### 🔐 重要: 本番環境のAPI Key管理
+
+- **本番環境では`GEMINI_API_KEY`環境変数は不要です**
+- ユーザーがWeb UIで初回アクセス時にAPIキーを入力
+- APIキーはブラウザのlocalStorageに保存（サーバー側には保存されません）
+- セキュアでスケーラブルな設計
+
+### セキュリティベストプラクティス
 
 - ✅ API Keyは環境変数で管理（`.env`は`.gitignore`に含まれます）
 - ✅ 機密情報はGitにコミットしない
-- ✅ 本番環境では専用APIキーを使用
+- ✅ 本番環境ではユーザー提供のAPIキーを使用（サーバー保存なし）
 
 ## ライセンス
 
@@ -249,12 +284,13 @@ MIT License
 
 ### v1.0 (2025-10-30) - 納品版
 - ✅ **42商品対応**: HA, SH含む全商品カテゴリ対応
-- ✅ **1,333件ナレッジベース**: 薬機法・景表法・社内ルール完備
+- ✅ **130ナレッジファイル**: 薬機法・景表法・社内ルール完備、~5,129チャンク生成
 - ✅ **4層チェックエンジン**: NGキーワード → 注釈解析 → RAG検索 → AI判定
+- ✅ **62種NGキーワード**: 絶対NG(28) + 条件付NG(27) + 文脈依存(7)
 - ✅ **ランキング表現検出**: 「1位」「NO.1」等のエビデンス必須表現を自動検出（Issue #36対応）
 - ✅ **Web UI + API**: フロントエンドとバックエンドAPI両対応
-- ✅ **本番環境対応**: Railway/Dockerデプロイ対応
-- ✅ **完全ドキュメント**: セットアップから運用まで6種類の納品ドキュメント完備
+- ✅ **本番環境対応**: Koyeb/Dockerデプロイ対応
+- ✅ **完全ドキュメント**: セットアップから運用まで9種類の納品ドキュメント完備
 
 ---
 
