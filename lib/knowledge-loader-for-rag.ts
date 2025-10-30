@@ -88,8 +88,19 @@ export class KnowledgeLoaderForRAG {
           const content = await fs.readFile(filePath, 'utf-8');
 
           // Get priority mapping for this file
-          const mappingKey = `${category}/${entry.name}`;
-          const mapping = priorityMapping.get(mappingKey);
+          // Try mapping with category prefix first, then fall back to filename only
+          let mapping = priorityMapping.get(`${category}/${entry.name}`);
+          if (!mapping) {
+            // Try all possible categories
+            mapping = priorityMapping.get(`common/${entry.name}`) ||
+                     priorityMapping.get(`HA/${entry.name}`) ||
+                     priorityMapping.get(`SH/${entry.name}`);
+          }
+
+          // Use mapping.category as productId (not directory category)
+          const productId = mapping?.category && mapping.category !== 'common'
+            ? mapping.category
+            : (category !== 'common' ? category : undefined);
 
           files.push({
             id: `${category}/${entry.name}`,
@@ -100,7 +111,7 @@ export class KnowledgeLoaderForRAG {
               fileName: entry.name,
               filePath,
               category,
-              productId: category === 'common' ? undefined : category,
+              productId,
               // Add priority metadata
               priority: mapping?.priority,
               legalDomain: mapping?.legalDomain,

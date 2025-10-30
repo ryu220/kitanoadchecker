@@ -87,7 +87,8 @@ export class ChromaVectorDB implements IVectorDB {
         embeddingFunction: new NoOpEmbeddingFunction() as any,
         metadata: {
           description: 'Ad checker knowledge base embeddings',
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
+          'hnsw:space': 'cosine' // Use cosine distance for similarity search
         }
       });
 
@@ -231,6 +232,9 @@ export class ChromaVectorDB implements IVectorDB {
       const filter = options?.filter;
 
       console.log(`[ChromaDB] Searching with topK=${topK}, minScore=${minScore}`);
+      if (filter) {
+        console.log(`[ChromaDB] Filter:`, JSON.stringify(filter));
+      }
 
       // Query ChromaDB
       const results = await this.collection.query({
@@ -239,16 +243,29 @@ export class ChromaVectorDB implements IVectorDB {
         where: filter as any, // Type cast to satisfy ChromaDB's Where type
       });
 
+      // Debug: Log what ChromaDB returned
+      console.log(`[ChromaDB] Query returned:`, {
+        idsCount: results.ids?.[0]?.length || 0,
+        distancesCount: results.distances?.[0]?.length || 0,
+        firstId: results.ids?.[0]?.[0] || 'none',
+        firstDistance: results.distances?.[0]?.[0] ?? 'none',
+        queryEmbeddingLength: queryEmbedding.length,
+      });
+
       // Convert ChromaDB results to SearchResult format
       const searchResults: SearchResult[] = [];
 
       if (results.ids && results.ids[0] && results.distances && results.distances[0]) {
+        let skippedNull = 0;
+        let skippedMinScore = 0;
+
         for (let i = 0; i < results.ids[0].length; i++) {
           const id = results.ids[0][i];
           const distance = results.distances[0][i];
 
           // Skip if distance is null
           if (distance === null || distance === undefined) {
+            skippedNull++;
             continue;
           }
 
@@ -257,8 +274,14 @@ export class ChromaVectorDB implements IVectorDB {
           // For cosine distance: similarity = 1 - distance
           const similarity = 1 - distance;
 
+          // Debug first few results
+          if (i < 3) {
+            console.log(`[ChromaDB] Result ${i}: distance=${distance}, similarity=${similarity}, minScore=${minScore}`);
+          }
+
           // Filter by minimum score
           if (similarity < minScore) {
+            skippedMinScore++;
             continue;
           }
 
@@ -271,6 +294,11 @@ export class ChromaVectorDB implements IVectorDB {
             metadata,
             score: similarity,
           });
+        }
+
+        // Log filtering stats
+        if (skippedNull > 0 || skippedMinScore > 0) {
+          console.log(`[ChromaDB] Skipped: ${skippedNull} null distances, ${skippedMinScore} below minScore`);
         }
       }
 
@@ -287,14 +315,25 @@ export class ChromaVectorDB implements IVectorDB {
     }
   }
 
-  async count(_filter?: SearchOptions['filter']): Promise<number> {
+  async count(filter?: SearchOptions['filter']): Promise<number> {
     if (!this.connected || !this.collection) {
       throw new Error('Not connected to ChromaDB');
     }
 
     try {
-      const result = await this.collection.count();
-      return result;
+      if (!filter) {
+        // No filter: return total count
+        const result = await this.collection.count();
+        return result;
+      }
+
+      // With filter: use get() with where clause and count results
+      const where = Object.fromEntries(
+        Object.entries(filter).map(([key, value]) => [key, { $eq: value }])
+      ) as any;
+
+      const results = await this.collection.get({ where });
+      return results.ids.length;
     } catch (error) {
       console.error('[ChromaDB] ❌ Count failed:', error);
       throw new Error(`ChromaDB count failed: ${error instanceof Error ? error.message : String(error)}`);

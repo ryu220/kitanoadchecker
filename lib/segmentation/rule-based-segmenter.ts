@@ -47,10 +47,10 @@ export class RuleBasedSegmenter {
    * アルゴリズム：
    * 1. トークナイズ（文・段落分解）
    * 2. キーワード検出（セグメント候補生成）
-   * 3. 注釈マージ（本文 + 注釈を結合）
-   * 4. セグメント生成（ID付与、位置情報計算）
+   * 3. 注釈マージ（本文 + 注釈マーカーを結合）
+   * 4. セグメント生成（ID付与、位置情報計算、注釈説明文を除外）
    *
-   * @param text - 広告文
+   * @param text - 広告文（根拠資料を含む可能性あり）
    * @returns セグメント分割結果
    */
   segment(text: string): SegmentationResult {
@@ -64,7 +64,7 @@ export class RuleBasedSegmenter {
       };
     }
 
-    // 1. トークナイズ
+    // 1. トークナイズ（全文）
     const tokens = Tokenizer.tokenize(text);
 
     if (this.config.debug) {

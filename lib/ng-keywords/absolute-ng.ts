@@ -178,14 +178,6 @@ export const outOfScopeKeywords: AbsoluteNGKeyword[] = [
     referenceKnowledge: 'knowledge/common/05_化粧品の効能効果（56項目）について.txt',
   },
   {
-    keyword: ['老け見え'],
-    category: 'out-of-scope',
-    severity: 'critical',
-    description: '老け見え表現は注釈なしでは効能効果範囲外（注釈ありならOK）',
-    violationType: '薬機法違反',
-    referenceKnowledge: 'knowledge/common/27_若々しい印象や若見え表現について.txt',
-  },
-  {
     keyword: ['アンチエイジング'],
     category: 'out-of-scope',
     severity: 'high',

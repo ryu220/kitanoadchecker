@@ -12,7 +12,7 @@ import {
   getContextDependentNGKeywords,
 } from './ng-keywords';
 import { checkAllNGKeywords, type KeywordMatch } from './ng-keywords/keyword-matcher';
-import { analyzeAnnotations } from './annotation-analyzer';
+// NOTE: analyzeAnnotations removed - annotation validation is now handled solely by keyword-matcher.ts
 
 export interface NGKeywordValidationResult {
   hasViolations: boolean;
@@ -30,7 +30,16 @@ export interface NGKeywordValidationResult {
 }
 
 export class NGKeywordValidator {
-  private conditionalKeywords = getConditionalNGKeywords();
+  private productId?: string;
+
+  constructor(productId?: string) {
+    this.productId = productId;
+  }
+
+  private getConditionalKeywords() {
+    return getConditionalNGKeywords(this.productId);
+  }
+
   private absoluteKeywords = getAbsoluteNGKeywords();
   private contextDependentKeywords = getContextDependentNGKeywords();
 
@@ -45,34 +54,45 @@ export class NGKeywordValidator {
     fullContext?: string,
     productId?: string
   ): NGKeywordValidationResult {
+    // productIdをインスタンスにセット（動的に切り替え可能にする）
+    if (productId) {
+      this.productId = productId;
+    }
+
     // Check all NG keywords
     const result = checkAllNGKeywords(
       text,
       {
         absolute: this.absoluteKeywords,
-        conditional: this.conditionalKeywords,
+        conditional: this.getConditionalKeywords(),
         contextDependent: this.contextDependentKeywords,
       },
       fullContext,
       productId
     );
 
-    // Issue #30: 注釈分析を実行して、正しい注釈が付いているキーワードを除外
-    const annotationAnalysis = analyzeAnnotations(text, fullContext);
-    const keywordsWithValidAnnotations = new Set(
-      annotationAnalysis.bindings
-        .filter(b => b.isValid)
-        .map(b => b.keyword)
-    );
+    // CRITICAL FIX (2025-10-30): Remove redundant annotation filtering
+    //
+    // Issue #30 added annotation-analyzer to help format instructions for Gemini,
+    // but it was being INCORRECTLY used for validation filtering here.
+    //
+    // Problem: annotation-analyzer only checks if annotation marker EXISTS (isValid = !!annotation),
+    // but doesn't validate if the annotation TEXT matches the required PATTERN.
+    //
+    // Example of the bug:
+    // - Text: "浸透※1・殺菌※2する\n※1殺菌は消毒の作用機序として\n※2背爪表面に"
+    // - "浸透※1" needs annotation with "背爪表面" but has "殺菌は消毒の作用機序として"
+    // - annotation-analyzer marks isValid=true (because SOME annotation exists)
+    // - Incorrect! The annotation content is WRONG for this keyword!
+    //
+    // Solution: keyword-matcher.ts already does CORRECT validation by:
+    // 1. Finding the annotation marker after keyword
+    // 2. Extracting the annotation TEXT by marker number
+    // 3. Testing if annotation TEXT matches the required PATTERN
+    //
+    // This redundant filtering has been removed. Let keyword-matcher.ts handle validation.
 
-    // 正しい注釈が付いているキーワードの違反を除外
-    const filteredMatches = result.matches.filter(match => {
-      if (keywordsWithValidAnnotations.has(match.keyword)) {
-        console.log(`[NG Keyword Validator] ⏭️  Skipping "${match.keyword}" (正しい注釈付き)`);
-        return false;
-      }
-      return true;
-    });
+    const filteredMatches = result.matches; // No filtering needed - keyword-matcher already validated!
 
     // Build explicit NG keywords list (filtered)
     const explicitNGKeywordsList = filteredMatches.map((m) => m.keyword);

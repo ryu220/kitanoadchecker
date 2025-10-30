@@ -35,15 +35,17 @@ export class Tokenizer {
     // 1. 構造的デリミタ【】を検出
     const structuralTokens = this.extractStructuralDelimiters(text);
 
-    // 2. 注釈マーカーを検出
-    const annotationMarkers = this.extractAnnotationMarkers(text);
+    // 2. 注釈本文を検出（優先）
     const annotationTexts = this.extractAnnotationTexts(text);
 
-    // 3. トークンをマージして優先順位順にソート
+    // 3. 注釈マーカーを検出（注釈本文と重複しないもののみ）
+    const annotationMarkers = this.extractAnnotationMarkers(text, annotationTexts);
+
+    // 4. トークンをマージして優先順位順にソート
     const allTokens = [
       ...structuralTokens,
-      ...annotationMarkers,
       ...annotationTexts,
+      ...annotationMarkers,
     ].sort((a, b) => a.start - b.start);
 
     // 4. トークン間のギャップを埋める（通常テキスト）
@@ -109,8 +111,10 @@ export class Tokenizer {
 
   /**
    * 注釈マーカー（※1, ※2, *1, *2）を抽出
+   *
+   * 注釈本文（annotation-text）と重複するマーカーはスキップします
    */
-  private static extractAnnotationMarkers(text: string): Token[] {
+  private static extractAnnotationMarkers(text: string, annotationTexts: Token[]): Token[] {
     const tokens: Token[] = [];
     const pattern = /[※＊*](\d+)/g;
     let match;
@@ -122,10 +126,13 @@ export class Tokenizer {
       const end = start + fullText.length;
       const line = text.substring(0, start).split('\n').length;
 
-      // 注釈本文の一部ではない場合のみ（"※1："の形式は注釈本文）
-      const nextChar = text.charAt(end);
-      if (nextChar === ':' || nextChar === '：') {
-        continue; // これは注釈本文の開始なのでスキップ
+      // Skip if this marker is part of an annotation text token
+      const isPartOfAnnotationText = annotationTexts.some(annToken =>
+        start >= annToken.start && end <= annToken.end
+      );
+
+      if (isPartOfAnnotationText) {
+        continue; // これは注釈本文の一部なのでスキップ
       }
 
       tokens.push({
@@ -145,14 +152,20 @@ export class Tokenizer {
   }
 
   /**
-   * 注釈本文（※1：角質層まで）を抽出
+   * 注釈本文（※1：角質層まで or ※1角質層まで）を抽出
+   *
+   * サポートする形式:
+   * 1. "※1：角質層まで" - コロン付き（従来形式）
+   * 2. "※1殺菌は消毒の作用機序として" - コロンなし、行頭に配置（新形式）
    */
   private static extractAnnotationTexts(text: string): Token[] {
     const tokens: Token[] = [];
-    const pattern = /[※＊*](\d+)[：:]\s*([^\n]+)/g;
+
+    // Format 1: ※1：explanation (with colon)
+    const colonPattern = /[※＊*](\d+)[：:]\s*([^\n]+)/g;
     let match;
 
-    while ((match = pattern.exec(text)) !== null) {
+    while ((match = colonPattern.exec(text)) !== null) {
       const fullText = match[0]; // "※1：角質層まで"
       const number = match[1]; // "1"
       const _annotationText = match[2]; // "角質層まで"
@@ -171,6 +184,38 @@ export class Tokenizer {
           priority: 90, // 高優先度
         },
       });
+    }
+
+    // Format 2: ※1explanation (without colon, at line start)
+    // Pattern: newline followed by ※\d, then text until next newline or end
+    const lineStartPattern = /(?:^|\n)([※＊*](\d+)([^\n※]+))/g;
+
+    while ((match = lineStartPattern.exec(text)) !== null) {
+      const fullText = match[1]; // "※1殺菌は消毒の作用機序として"
+      const number = match[2]; // "1"
+      const start = match.index + (match[0].startsWith('\n') ? 1 : 0); // Skip leading newline
+      const end = start + fullText.length;
+      const line = text.substring(0, start).split('\n').length;
+
+      // Check if this overlaps with any colon-format tokens
+      const overlaps = tokens.some(t =>
+        (start >= t.start && start < t.end) ||
+        (end > t.start && end <= t.end)
+      );
+
+      if (!overlaps) {
+        tokens.push({
+          type: 'annotation-text',
+          text: fullText,
+          start,
+          end,
+          line,
+          metadata: {
+            annotationNumber: number,
+            priority: 90, // 高優先度
+          },
+        });
+      }
     }
 
     return tokens;

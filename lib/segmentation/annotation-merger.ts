@@ -45,9 +45,8 @@ export class AnnotationMerger {
         continue;
       }
 
-      // 3. 各注釈マーカーに対応する注釈本文を検索
-      const annotationTexts: Token[] = [];
-
+      // 3. 注釈マーカーに対応する注釈本文を検索（参照のみ、マージしない）
+      // 注釈本文はセグメントに含めず、fullTextで参照可能にする
       for (const marker of annotationMarkers) {
         const annotationNumber = marker.metadata?.annotationNumber;
 
@@ -55,39 +54,22 @@ export class AnnotationMerger {
           continue;
         }
 
-        // 既に使用済みの注釈はスキップ
-        if (usedAnnotationNumbers.has(annotationNumber)) {
-          continue;
-        }
-
-        // 注釈本文を検索
-        const annotationText = this.findAnnotationText(annotationNumber, allTokens);
-
-        if (annotationText) {
-          annotationTexts.push(annotationText);
-          usedAnnotationNumbers.add(annotationNumber);
-        }
+        // 注釈番号を記録（重複チェック用）
+        usedAnnotationNumbers.add(annotationNumber);
       }
 
-      // 4. 本文セグメントと注釈セグメントを結合
-      if (annotationTexts.length > 0 || adjacentMarkers.length > 0) {
+      // 4. 注釈マーカーのみをセグメントに追加（注釈本文は含めない）
+      // 注釈本文はfullTextに残り、keyword-matcher.tsが注釈番号で検索して使用する
+      if (adjacentMarkers.length > 0) {
         const mergedTokens = [
           ...candidate.tokens,
-          ...adjacentMarkers,
-          ...annotationTexts,
+          ...adjacentMarkers,  // 注釈マーカーのみ追加
         ].sort((a, b) => a.start - b.start);
-
-        // マージされた候補は、元の候補より高い優先度を持つべき
-        // これにより、重複排除時に優先的に採用される
-        const mergedPriority = Math.max(
-          candidate.priority,
-          ...annotationTexts.map(t => t.metadata?.priority || 0)
-        );
 
         mergedCandidates.push({
           ...candidate,
           tokens: mergedTokens,
-          priority: mergedPriority + 5, // さらに+5して確実に優先
+          priority: candidate.priority + 5, // 注釈マーカー付きは優先度を上げる
           merged: true,
           annotationMarkers: annotationMarkers.map((m) => m.metadata?.annotationNumber || ''),
         });

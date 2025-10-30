@@ -16,6 +16,7 @@ export class SegmentBuilder {
    * セグメント候補からSegment型を生成
    *
    * 処理：
+   * 0. 注釈説明文セグメントを除外（fullTextで参照されるため個別セグメントは不要）
    * 1. 重複を除去（優先度の高いセグメントを優先）
    * 2. IDを付与（seg_001, seg_002, ...）
    * 3. 位置情報を計算
@@ -26,8 +27,25 @@ export class SegmentBuilder {
    * @returns Segment配列
    */
   static build(candidates: SegmentCandidate[], originalText: string): Segment[] {
+    // 0. Filter out annotation explanation segments
+    // These are NOT advertising text - they are reference materials
+    // that should be accessible via fullText for annotation validation
+    const filteredCandidates = candidates.filter(candidate => {
+      // Check if this candidate is only annotation text tokens
+      const hasOnlyAnnotationText = candidate.tokens.every(
+        token => token.type === 'annotation-text' || token.type === 'annotation-marker'
+      );
+
+      if (hasOnlyAnnotationText) {
+        console.log(`[SegmentBuilder] Filtered out annotation explanation segment: "${candidate.tokens.map(t => t.text).join('').substring(0, 50)}..."`);
+        return false;
+      }
+
+      return true;
+    });
+
     // 1. 重複を除去（優先度の高いセグメントを優先）
-    const deduplicatedCandidates = this.deduplicateCandidates(candidates);
+    const deduplicatedCandidates = this.deduplicateCandidates(filteredCandidates);
 
     // 2. 位置順にソート
     deduplicatedCandidates.sort((a, b) => {
@@ -48,10 +66,79 @@ export class SegmentBuilder {
       }
     }
 
-    // 4. 全文字がセグメントに含まれているか検証
-    this.validateCoverage(segments, originalText);
+    // 3.5. 注釈マーカーで終わるセグメントの後に続く短いセグメントをマージ
+    // 例: "殺菌※2" + "する薬用ジェル" → "殺菌※2する薬用ジェル"
+    const mergedSegments = this.mergeFragmentedSegments(segments, originalText);
 
-    return segments;
+    // 4. 全文字がセグメントに含まれているか検証
+    this.validateCoverage(mergedSegments, originalText);
+
+    return mergedSegments;
+  }
+
+  /**
+   * 注釈マーカーで終わるセグメントの後に続く短いセグメントをマージ
+   *
+   * 問題: 注釈マーカー（※1, ※2）で終わるセグメントの後に短いセグメント（< 20文字）が
+   * 続く場合、それらを1つのセグメントとしてマージする
+   *
+   * 例: "殺菌※2" + "する薬用ジェル" → "殺菌※2する薬用ジェル"
+   *
+   * @param segments - セグメント配列
+   * @param originalText - 元のテキスト
+   * @returns マージ後のセグメント配列
+   */
+  private static mergeFragmentedSegments(segments: Segment[], originalText: string): Segment[] {
+    if (segments.length === 0) {
+      return segments;
+    }
+
+    const result: Segment[] = [];
+
+    for (let i = 0; i < segments.length; i++) {
+      const current = segments[i];
+      const next = segments[i + 1];
+
+      // 現在のセグメントが注釈マーカーで終わっているかチェック
+      const endsWithAnnotationMarker = /※\d+\s*$/.test(current.text);
+
+      if (endsWithAnnotationMarker && next && next.text.length <= 20) {
+        // 次のセグメントが短い（20文字以下）場合、マージ
+        const currentEnd = current.position?.end || 0;
+        const nextStart = next.position?.start || 0;
+        const gap = nextStart - currentEnd;
+
+        // ギャップが5文字以内の場合のみマージ（隣接している場合）
+        if (gap <= 5) {
+          const mergedText = originalText.substring(
+            current.position?.start || 0,
+            next.position?.end || 0
+          );
+
+          const merged: Segment = {
+            id: current.id,
+            text: mergedText,
+            type: current.type,
+            position: {
+              start: current.position?.start || 0,
+              end: next.position?.end || 0,
+            },
+          };
+
+          result.push(merged);
+          console.log(`[SegmentBuilder] Merged fragmented segments: "${current.text}" + "${next.text}" → "${mergedText}"`);
+
+          // 次のセグメントはスキップ
+          i++;
+          continue;
+        }
+      }
+
+      // マージしない場合は、そのまま追加
+      result.push(current);
+    }
+
+    return result;
   }
 
   /**

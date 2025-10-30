@@ -17,7 +17,7 @@ export interface RAGSearchOptions {
   /** 取得する結果数（default: 20） */
   topK?: number;
 
-  /** 最小類似度スコア（default: 0.5） */
+  /** 最小類似度スコア（default: 0.3） */
   minSimilarity?: number;
 
   /** 商品IDフィルター */
@@ -120,7 +120,7 @@ export class RAGSearchService {
       console.log('[RAG Search] Starting product-specific prioritized search...');
 
       // Search strategy:
-      // 1. First search product-specific knowledge (category=productId)
+      // 1. First search product-specific knowledge (productId=productId)
       // 2. Then search common knowledge (category=common)
       // 3. Merge results with product-specific taking priority
 
@@ -130,7 +130,7 @@ export class RAGSearchService {
             {
               topK,
               minScore: minSimilarity,
-              filter: { category: options.productId }, // Product-specific only
+              filter: { productId: options.productId }, // Product-specific only (fixed: use productId instead of category)
             }
           )
         : [];
@@ -210,7 +210,7 @@ export class RAGSearchService {
     // Priority 1: Company Standards (会社基準)
     console.log('[RAG Search] [P1] Searching company standards (priority=1)...');
     const p1Filter = filter
-      ? { $and: [filter, { priority: { $eq: 1 } }] }
+      ? { $and: Object.entries(filter).map(([key, value]) => ({ [key]: { $eq: value } })).concat({ priority: { $eq: 1 } }) }
       : { priority: { $eq: 1 } };
     console.log('[RAG Search] [P1] Filter object:', JSON.stringify(p1Filter));
     const p1Results = await this.vectorDB.search(embedding, {
@@ -230,7 +230,7 @@ export class RAGSearchService {
     // Priority 2: Laws (法律) - Expand search
     console.log(`[RAG Search] [P2] P1 insufficient (${allResults.length} < ${topK}), expanding to laws (priority=2)...`);
     const p2Filter = filter
-      ? { $and: [filter, { priority: { $eq: 2 } }] }
+      ? { $and: Object.entries(filter).map(([key, value]) => ({ [key]: { $eq: value } })).concat({ priority: { $eq: 2 } }) }
       : { priority: { $eq: 2 } };
     const p2Results = await this.vectorDB.search(embedding, {
       topK: topK * 2,
@@ -249,7 +249,7 @@ export class RAGSearchService {
     // Priority 3: Guidelines (ガイドライン) - Expand further
     console.log(`[RAG Search] [P3] P1+P2 insufficient (${allResults.length} < ${topK}), expanding to guidelines (priority=3)...`);
     const p3Filter = filter
-      ? { $and: [filter, { priority: { $eq: 3 } }] }
+      ? { $and: Object.entries(filter).map(([key, value]) => ({ [key]: { $eq: value } })).concat({ priority: { $eq: 3 } }) }
       : { priority: { $eq: 3 } };
     const p3Results = await this.vectorDB.search(embedding, {
       topK: topK * 2,

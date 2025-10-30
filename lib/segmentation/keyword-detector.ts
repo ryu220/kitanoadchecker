@@ -97,10 +97,23 @@ export class KeywordDetector {
       });
     }
 
-    // パターン3: 「実質無料」「実質0円」「全額返金保証」
+    // パターン3: 医薬関係者等の推せん（権威付け表現）
+    // 「製薬会社」「上場企業」「大学」「○○博士」「共同開発」「共同研究」など
+    const authorityPattern = /(?:製薬会社|上場企業|大学|博士|教授|専門家|クリニック|病院).*?(?:共同開発|共同研究|監修|推奨|推せん|開発)|(?:共同開発|共同研究).*?(?:製薬会社|上場企業|大学)/g;
+    const matches_auth = this.findMatches(text, authorityPattern, tokens);
+    for (const match of matches_auth) {
+      candidates.push({
+        tokens: match.tokens,
+        type: 'claim', // 権威付け表現はclaim扱い
+        importance: 0.95,
+        priority: 95, // 高優先度
+      });
+    }
+
+    // パターン4: 「実質無料」「実質0円」「全額返金保証」
     const freePattern = /(?:実質無料|実質0円|全額返金保証)[^。\n]*/g;
-    const matches3 = this.findMatches(text, freePattern, tokens);
-    for (const match of matches3) {
+    const matches4 = this.findMatches(text, freePattern, tokens);
+    for (const match of matches4) {
       candidates.push({
         tokens: match.tokens,
         type: 'cta',
@@ -109,10 +122,10 @@ export class KeywordDetector {
       });
     }
 
-    // パターン4: 価格表示
+    // パターン5: 価格表示
     const pricePattern = /\d+[,，]?\d*円[^。\n]*/g;
-    const matches4 = this.findMatches(text, pricePattern, tokens);
-    for (const match of matches4) {
+    const matches5 = this.findMatches(text, pricePattern, tokens);
+    for (const match of matches5) {
       // 既に他のパターンでマッチしている場合はスキップ
       const alreadyMatched = candidates.some((c) =>
         this.tokensOverlap(c.tokens, match.tokens)

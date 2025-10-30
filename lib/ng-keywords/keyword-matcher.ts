@@ -45,8 +45,16 @@ export function checkAbsoluteNGKeywords(
 ): KeywordMatch[] {
   const matches: KeywordMatch[] = [];
 
-  // 注釈範囲を事前に検出
-  const annotationRanges = detectAnnotationRanges(text);
+  // Skip annotation explanation segments (e.g., "※1背爪表面に", "※2殺菌は消毒の作用機序として")
+  // These are reference materials, not advertising text to be checked
+  const trimmedText = text.trim();
+  if (/^※\d/.test(trimmedText)) {
+    console.log(`[Keyword Matcher] ⏭️  Skipping annotation explanation segment in absolute check: "${trimmedText.substring(0, 50)}..."`);
+    return [];
+  }
+
+  // NOTE: detectAnnotationRanges() is NO LONGER NEEDED
+  // Annotation explanation text is already filtered out by SegmentBuilder
 
   for (const ngKeyword of keywords) {
     const patterns = keywordToPattern(ngKeyword.keyword);
@@ -56,12 +64,6 @@ export function checkAbsoluteNGKeywords(
       let match: RegExpExecArray | null;
 
       while ((match = regex.exec(text)) !== null) {
-        // キーワードが注釈内テキストにある場合はスキップ
-        if (isInAnnotationRange(match.index, annotationRanges)) {
-          console.log(`[Keyword Matcher] ⏭️  Skipping absolute NG "${match[0]}" at position ${match.index} (inside annotation text)`);
-          continue;
-        }
-
         // 「保証」が「返金保証」「全額返金保証」の文脈で使われている場合はスキップ
         if (match[0] === '保証' || match[0] === '保証します' || match[0] === '保障') {
           const contextStart = Math.max(0, match.index - 10);
@@ -96,58 +98,11 @@ export function checkAbsoluteNGKeywords(
   return matches;
 }
 
-/**
- * 注釈範囲を検出
- * @returns 注釈範囲の配列 [{start, end}, ...]
- */
-function detectAnnotationRanges(text: string): Array<{start: number; end: number}> {
-  const ranges: Array<{start: number; end: number}> = [];
-
-  // パターン1: （※1...）のような括弧で囲まれた注釈
-  const bracketPattern = /（※\d*[^）]*）/g;
-  let bracketMatch: RegExpExecArray | null;
-  while ((bracketMatch = bracketPattern.exec(text)) !== null) {
-    ranges.push({
-      start: bracketMatch.index,
-      end: bracketMatch.index + bracketMatch[0].length
-    });
-  }
-
-  // パターン2: ※1 以降の説明文（括弧で囲まれていない場合）
-  // 注釈マーカー後から次の句点、改行、または次の注釈マーカーまで
-  const markerPattern = /※\d*/g;
-  let markerMatch: RegExpExecArray | null;
-  while ((markerMatch = markerPattern.exec(text)) !== null) {
-    const markerEnd = markerMatch.index + markerMatch[0].length;
-
-    // 既に括弧内として検出済みの範囲内にあればスキップ
-    const isInBracket = ranges.some(range =>
-      markerMatch!.index >= range.start && markerMatch!.index < range.end
-    );
-    if (isInBracket) continue;
-
-    // 次の区切りを探す
-    const remainingText = text.substring(markerEnd);
-    const endMatch = remainingText.match(/[。\n]|(?=※)/);
-    const rangeEnd = endMatch && endMatch.index !== undefined
-      ? markerEnd + endMatch.index
-      : text.length;
-
-    ranges.push({
-      start: markerMatch.index,
-      end: rangeEnd
-    });
-  }
-
-  return ranges;
-}
-
-/**
- * 位置が注釈範囲内にあるかチェック
- */
-function isInAnnotationRange(position: number, ranges: Array<{start: number; end: number}>): boolean {
-  return ranges.some(range => position >= range.start && position < range.end);
-}
+// NOTE: detectAnnotationRanges() and isInAnnotationRange() removed (2025-10-30)
+// These functions were causing false positives by treating annotation markers
+// in advertising text (e.g., "浸透※1・殺菌※2") as annotation explanation text.
+// Annotation explanation text is now filtered at the SegmentBuilder level,
+// so segments only contain advertising text and no annotation range detection is needed.
 
 /**
  * 条件付きNGキーワードをチェック
@@ -160,8 +115,18 @@ export function checkConditionalNGKeywords(
   const matches: KeywordMatch[] = [];
   const contextText = fullContext || text;
 
-  // 注釈範囲を事前に検出
-  const annotationRanges = detectAnnotationRanges(text);
+  // Skip annotation explanation segments (e.g., "※1背爪表面に", "※2殺菌は消毒の作用機序として")
+  // These are reference materials, not advertising text to be checked
+  const trimmedText = text.trim();
+  if (/^※\d/.test(trimmedText)) {
+    console.log(`[Keyword Matcher] ⏭️  Skipping annotation explanation segment: "${trimmedText.substring(0, 50)}..."`);
+    return [];
+  }
+
+  // NOTE: detectAnnotationRanges() is NO LONGER NEEDED
+  // Annotation explanation text is already filtered out by SegmentBuilder
+  // Segments only contain advertising text with annotation markers (※1, ※2)
+  // The markers themselves are part of the advertising text and should be checked
 
   // Track matched ranges to avoid duplicate matches from overlapping keywords
   const matchedRanges: Array<{start: number; end: number; keyword: string}> = [];
@@ -188,36 +153,76 @@ export function checkConditionalNGKeywords(
           continue;
         }
 
-        // キーワードが注釈内テキストにある場合はスキップ
-        if (isInAnnotationRange(match.index, annotationRanges)) {
-          console.log(`[Keyword Matcher] ⏭️  Skipping "${match[0]}" at position ${match.index} (inside annotation text)`);
-          continue;
-        }
         // Check if required annotation exists
         const annotationPattern =
           typeof ngKeyword.requiredAnnotation === 'string'
             ? new RegExp(ngKeyword.requiredAnnotation)
             : ngKeyword.requiredAnnotation;
 
-        // Extract proximity text:
-        // IMPORTANT: The annotation marker (※) must be IMMEDIATELY after the keyword
+        // Extract annotation text:
+        // IMPORTANT: The annotation marker (※1, ※2, etc.) must be IMMEDIATELY after the keyword
         // to avoid false positives from other keywords' annotations.
         // Example: "ヒアルロン酸でクマ※1" - the ※1 belongs to "クマ", NOT "ヒアルロン酸"
 
         const keywordEnd = match.index + match[0].length;
         const immediateProximityRange = 3; // Allow up to 3 chars (e.g., space + ※)
-        const annotationContentRange = 100; // Extract 100 chars from marker for content check
 
         // Check for annotation marker IMMEDIATELY after keyword (within 3 chars)
         const immediateText = contextText.substring(keywordEnd, Math.min(contextText.length, keywordEnd + immediateProximityRange));
-        const immediateMarkerMatch = immediateText.match(/^\s*※\d*/);
+        const immediateMarkerMatch = immediateText.match(/^\s*※(\d*)/);
 
         let proximityText = '';
         if (immediateMarkerMatch) {
-          // Found marker immediately after keyword, extract content from marker position
-          const markerPosition = keywordEnd + immediateMarkerMatch.index!;
-          const contentEnd = Math.min(contextText.length, markerPosition + annotationContentRange);
-          proximityText = contextText.substring(markerPosition, contentEnd);
+          // Found marker immediately after keyword
+          const markerNumber = immediateMarkerMatch[1]; // Extract marker number (e.g., "1" from "※1")
+
+          // Search for annotation text anywhere in fullContext using the marker number
+          // Try multiple patterns in priority order to avoid false positives while maintaining compatibility
+          if (markerNumber) {
+            const allAnnotationTexts: string[] = [];
+
+            // Pattern 1: After newline (most common, least false positives)
+            // Example: "\n※1背爪表面に" or "\n※1 背爪表面に" or "\n※1:背爪表面に"
+            // IMPORTANT: Include the marker (※1) in the captured text for pattern matching
+            const newlinePattern = new RegExp(`\\n(※${markerNumber}[\\s:：]*[^\\n※]+)`, 'g');
+            let match1;
+            while ((match1 = newlinePattern.exec(contextText)) !== null) {
+              allAnnotationTexts.push(match1[1].trim());
+            }
+
+            // Pattern 2: In parentheses (common in inline annotations)
+            // Example: "（※1背爪表面に）" or "(※1背爪表面に)"
+            // IMPORTANT: Include the marker (※1) in the captured text for pattern matching
+            const parenthesesPattern = new RegExp(`[（(](※${markerNumber}[\\s:：]*[^）)]+)[）)]`, 'g');
+            let match2;
+            while ((match2 = parenthesesPattern.exec(contextText)) !== null) {
+              allAnnotationTexts.push(match2[1].trim());
+            }
+
+            // Pattern 3: At start of text (for standalone annotation text)
+            // Example: "※1背爪表面に" at the beginning of contextText
+            // IMPORTANT: Include the marker (※1) in the captured text for pattern matching
+            const startPattern = new RegExp(`^(※${markerNumber}[\\s:：]*[^\\n※]+)`, 'm');
+            const match3 = startPattern.exec(contextText);
+            if (match3) {
+              allAnnotationTexts.push(match3[1].trim());
+            }
+
+            // Combine all found annotation texts
+            proximityText = allAnnotationTexts.join(' ');
+
+            // Debug logging
+            if (allAnnotationTexts.length > 0) {
+              console.log(`[Keyword Matcher] 📝 Found annotation for ※${markerNumber}: "${proximityText.substring(0, 50)}..."`);
+            } else {
+              console.log(`[Keyword Matcher] ⚠️  No annotation found for ※${markerNumber} in fullContext`);
+            }
+          } else {
+            // No number specified (just "※"), use limited range search as fallback
+            const markerPosition = keywordEnd + immediateMarkerMatch.index!;
+            const contentEnd = Math.min(contextText.length, markerPosition + 100);
+            proximityText = contextText.substring(markerPosition, contentEnd);
+          }
         }
 
         let hasRequiredAnnotation = proximityText && annotationPattern.test(proximityText);
@@ -282,8 +287,16 @@ export function checkContextDependentNGKeywords(
   const matches: KeywordMatch[] = [];
   const contextText = fullContext || text;
 
-  // 注釈範囲を事前に検出
-  const annotationRanges = detectAnnotationRanges(text);
+  // Skip annotation explanation segments (e.g., "※1背爪表面に", "※2殺菌は消毒の作用機序として")
+  // These are reference materials, not advertising text to be checked
+  const trimmedText = text.trim();
+  if (/^※\d/.test(trimmedText)) {
+    console.log(`[Keyword Matcher] ⏭️  Skipping annotation explanation segment in context-dependent check: "${trimmedText.substring(0, 50)}..."`);
+    return [];
+  }
+
+  // NOTE: detectAnnotationRanges() is NO LONGER NEEDED
+  // Annotation explanation text is already filtered out by SegmentBuilder
 
   for (const ngKeyword of keywords) {
     const patterns = keywordToPattern(ngKeyword.keyword);
@@ -293,12 +306,6 @@ export function checkContextDependentNGKeywords(
       let match: RegExpExecArray | null;
 
       while ((match = regex.exec(text)) !== null) {
-        // キーワードが注釈内テキストにある場合はスキップ
-        if (isInAnnotationRange(match.index, annotationRanges)) {
-          console.log(`[Keyword Matcher] ⏭️  Skipping context-dependent "${match[0]}" at position ${match.index} (inside annotation text)`);
-          continue;
-        }
-
         // Check if matches NG pattern
         let isNG = false;
         let ngReason = '';
@@ -379,9 +386,18 @@ export function checkAllNGKeywords(
       const config = loadProductConfig(productId as any);
 
       if (config.annotationRules) {
-        // annotationRulesの各キーワードをConditionalNGKeywordとして追加
+        // 既存のキーワードを Set に格納（重複チェック用）
+        const existingKeywords = new Set<string>();
+        for (const existing of enhancedConditionalKeywords) {
+          const existingKeywordArray = Array.isArray(existing.keyword) ? existing.keyword : [existing.keyword];
+          for (const kw of existingKeywordArray) {
+            existingKeywords.add(kw);
+          }
+        }
+
+        // annotationRulesの各キーワードをConditionalNGKeywordとして追加（重複を除く）
         for (const [keyword, rule] of Object.entries(config.annotationRules)) {
-          if (rule.required) {
+          if (rule.required && !existingKeywords.has(keyword)) {
             enhancedConditionalKeywords.push({
               keyword,
               category: 'ingredient',

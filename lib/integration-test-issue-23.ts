@@ -4,6 +4,7 @@
  */
 
 import { createNGKeywordValidator } from './ng-keyword-validator';
+import { getConditionalNGKeywords, getAbsoluteNGKeywords, getContextDependentNGKeywords } from './ng-keywords';
 
 const validator = createNGKeywordValidator();
 
@@ -54,7 +55,9 @@ resultB.matches.forEach((m) => {
   }
 });
 
-const expectedKeywords = ['老け見え', '注入', 'ヒアルロン'];
+// Updated: 老け見え was removed from absolute NG keywords per user request
+// Now only checking for 注入 and ヒアルロン
+const expectedKeywords = ['注入', 'ヒアルロン'];
 const hasExpectedViolations = expectedKeywords.every((kw) =>
   detectedKeywords.some((d) => d.includes(kw))
 );
@@ -90,9 +93,9 @@ console.log('\n========================================\n');
 console.log('【サマリー】');
 console.log(`NGキーワード統計:`);
 const stats = {
-  conditional: validator['conditionalKeywords'].length,
-  absolute: validator['absoluteKeywords'].length,
-  contextDependent: validator['contextDependentKeywords'].length,
+  conditional: getConditionalNGKeywords().length,
+  absolute: getAbsoluteNGKeywords().length,
+  contextDependent: getContextDependentNGKeywords().length,
 };
 console.log(`  - 条件付きNG: ${stats.conditional}件`);
 console.log(`  - 完全NG: ${stats.absolute}件`);

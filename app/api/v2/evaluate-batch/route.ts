@@ -85,6 +85,29 @@ async function getGlobalVectorDB(): Promise<ChromaVectorDB> {
 }
 
 /**
+ * Check if a segment is an annotation explanation (reference material, not advertising text)
+ *
+ * Annotation explanation patterns:
+ * - "※1背爪表面に" - Starts with ※\d
+ * - "殺菌は消毒の作用機序として  ※2" - Ends with ※\d but no advertising keywords
+ * - "する薬用ジェル    ※1" - Short connector phrase ending with ※\d
+ *
+ * NOT annotation explanations (advertising text):
+ * - "爪の中まで浸透※1・殺菌※2する薬用ジェル" - Contains advertising claims
+ *
+ * Strategy: Only skip if segment starts with ※\d (clear annotation explanation)
+ */
+function isAnnotationExplanationSegment(segment: { text: string }): boolean {
+  const trimmedText = segment.text.trim();
+
+  // Only skip segments that START with annotation markers (※1, ※2, etc.)
+  // These are clearly annotation explanation text, not advertising claims
+  const startsWithAnnotation = /^※\d/.test(trimmedText);
+
+  return startsWithAnnotation;
+}
+
+/**
  * Request schema for batch evaluation API
  * Issue #15: バッチ評価で300セグメントまで対応
  */
@@ -162,7 +185,7 @@ export async function POST(request: NextRequest) {
       validatedInput.segments.map(s => s.text),
       {
         topK: 20,
-        minSimilarity: 0.5,
+        minSimilarity: 0.3, // Lowered from 0.5 to 0.3 for better recall with cosine distance
         productId: validatedInput.productId,
         debug: true,
       }
@@ -181,6 +204,19 @@ export async function POST(request: NextRequest) {
     const ngValidationResults = validatedInput.skipKeywordValidation
       ? undefined
       : validatedInput.segments.map((segment, index) => {
+          // Skip annotation explanation segments (e.g., "殺菌は消毒の作用機序として  ※2")
+          // These are reference materials, not advertising text to be checked
+          if (isAnnotationExplanationSegment(segment)) {
+            console.log(`[Evaluate Batch API] ⏭️  Skipping NG Keyword validation for segment ${index + 1} (annotation explanation): "${segment.text.trim().substring(0, 50)}..."`);
+            return {
+              hasViolations: false,
+              explicitNGKeywordsList: [],
+              summary: { absolute: 0, conditional: 0, contextDependent: 0, total: 0, critical: 0, high: 0, medium: 0 },
+              matches: [],
+              instructionsForGemini: ''
+            };
+          }
+
           const ngValidationResult = ngKeywordValidator.validate(
             segment.text,
             validatedInput.fullText,
@@ -204,6 +240,16 @@ export async function POST(request: NextRequest) {
 
     // Guinness Record Validation for each segment
     const guinnessValidationResults = validatedInput.segments.map((segment, index) => {
+      // Skip annotation explanation segments (same logic as NG Keyword validation)
+      if (isAnnotationExplanationSegment(segment)) {
+        console.log(`[Evaluate Batch API] ⏭️  Skipping Guinness Record validation for segment ${index + 1} (annotation explanation)`);
+        return {
+          hasGuinnessReference: false,
+          isValid: true,
+          violations: []
+        };
+      }
+
       const guinnessValidationResult = validateGuinnessRecord(segment.text, validatedInput.fullText);
 
       console.log(`[Evaluate Batch API] Guinness Record validation for segment ${index + 1} (${segment.id}):`);
@@ -234,35 +280,113 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Filter out annotation explanation segments before sending to Gemini
+    // These segments should not be evaluated as advertising text
+    const segmentsForGemini = validatedInput.segments.filter((segment, index) => {
+      const shouldSkip = isAnnotationExplanationSegment(segment);
+      if (shouldSkip) {
+        console.log(`[Evaluate Batch API] ⏭️  Excluding segment ${index + 1} from Gemini evaluation (annotation explanation): "${segment.text.trim().substring(0, 50)}..."`);
+      }
+      return !shouldSkip;
+    });
+
+    // Corresponding validation results for filtered segments
+    const ngValidationResultsForGemini = ngValidationResults?.filter((_, index) =>
+      !isAnnotationExplanationSegment(validatedInput.segments[index])
+    );
+    const guinnessValidationResultsForGemini = guinnessValidationResults.filter((_, index) =>
+      !isAnnotationExplanationSegment(validatedInput.segments[index])
+    );
+
+    console.log(`[Evaluate Batch API] Filtered ${validatedInput.segments.length} segments -> ${segmentsForGemini.length} segments for Gemini evaluation`);
+
     // Create batch evaluation prompt
     const prompt = createBatchEvaluationPrompt(
-      validatedInput.segments,
+      segmentsForGemini,
       validatedInput.productId,
       knowledgeContext,  // RAG検索で取得した関連ナレッジを使用
       validatedInput.fullText,
-      ngValidationResults,  // NG Keyword Validator の結果を渡す
-      guinnessValidationResults  // Guinness Record Validator の結果を渡す
+      ngValidationResultsForGemini,  // NG Keyword Validator の結果を渡す（フィルタリング済み）
+      guinnessValidationResultsForGemini  // Guinness Record Validator の結果を渡す（フィルタリング済み）
     );
 
     console.log('[Evaluate Batch API] Sending batch evaluation request to Gemini...');
     console.log('[Evaluate Batch API] Prompt length:', prompt.length, 'chars');
 
-    // Evaluate all segments in one Gemini API call with retry
+    // Evaluate filtered segments in one Gemini API call with retry
     const geminiEvaluations = await evaluateBatchWithRetry(
       model,
       prompt,
-      validatedInput.segments,
+      segmentsForGemini,  // Use filtered segments (annotation explanations excluded)
       3 // max retries
     );
 
+    // Create a map from segment ID to Gemini evaluation for efficient lookup
+    const geminiEvaluationMap = new Map<string, SegmentEvaluation>();
+    segmentsForGemini.forEach((segment, index) => {
+      geminiEvaluationMap.set(segment.id, geminiEvaluations[index]);
+    });
+
     // Merge NG Keyword and Guinness Record validation results with Gemini evaluations
     // Priority: NG Keywords (HIGHEST) > Guinness > Gemini
-    const evaluations = geminiEvaluations.map((evaluation, index) => {
+    const evaluations = validatedInput.segments.map((segment, index) => {
       const ngResult = ngValidationResults ? ngValidationResults[index] : undefined;
       const guinnessResult = guinnessValidationResults[index];
 
-      let mergedViolations = [...evaluation.violations];
-      let hasViolations = !evaluation.compliance;
+      // Get Gemini evaluation for this segment (if it was evaluated)
+      const geminiEvaluation = geminiEvaluationMap.get(segment.id);
+
+      // If segment was skipped (annotation explanation), return a clean result
+      if (!geminiEvaluation) {
+        console.log(`[Evaluate Batch API] Segment ${index + 1} was skipped (annotation explanation)`);
+        return {
+          segmentId: segment.id,
+          compliance: true,
+          violations: [],
+          reasoning: '注釈説明文のため評価対象外',
+          rawViolations: [],
+          improvements: [],
+          evaluatedAt: new Date().toISOString()
+        };
+      }
+
+      let mergedViolations = [...geminiEvaluation.violations];
+      let hasViolations = !geminiEvaluation.compliance;
+
+      // 0. Filter out Gemini violations that are duplicates of NG keyword validator detections
+      if (ngResult && ngResult.hasViolations && ngResult.matches.length > 0) {
+        const detectedKeywords = ngResult.matches.map(m => m.keyword);
+        const beforeFilterCount = mergedViolations.length;
+
+        mergedViolations = mergedViolations.filter(violation => {
+          const isDuplicate = detectedKeywords.some(keyword => {
+            const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const quotedExpressionPattern = new RegExp(`^[「『].*${escapedKeyword}.*[」』]という表現`);
+            const explicitExpressionPattern = new RegExp(`^「.*${escapedKeyword}.*」`);
+
+            const matches = quotedExpressionPattern.test(violation.description) ||
+                           explicitExpressionPattern.test(violation.description);
+
+            if (matches) {
+              console.log(`[Duplicate Filter] 🎯 Matched keyword "${keyword}" in description: "${violation.description.substring(0, 60)}..."`);
+            }
+
+            return matches;
+          });
+
+          if (isDuplicate) {
+            console.log(`[Duplicate Filter] 🗑️  Removed duplicate violation about NG keyword expression: "${violation.description.substring(0, 80)}..."`);
+            return false;
+          }
+
+          return true;
+        });
+
+        const filteredCount = beforeFilterCount - mergedViolations.length;
+        if (filteredCount > 0) {
+          console.log(`[Duplicate Filter] ✅ Filtered out ${filteredCount} duplicate violations for segment ${index + 1}`);
+        }
+      }
 
       // 1. Merge NG Keyword violations (HIGHEST PRIORITY - cannot be overridden)
       // Issue #30: NG Keyword Validatorで既に注釈チェック済み
@@ -360,7 +484,8 @@ export async function POST(request: NextRequest) {
           keywords.push(...match1.map(m => m.replace(/[「」]/g, '')));
         }
 
-        return keywords;
+        // 重複を除去（同じキーワードがコアキーワードとカギカッコ内の両方に含まれる場合）
+        return Array.from(new Set(keywords));
       };
 
       // キーワードごとにグループ化（コアキーワード優先）
@@ -374,9 +499,10 @@ export async function POST(request: NextRequest) {
           const key = `_no_keyword_${violation.description}`;
           violationsByKeyword.set(key, [violation]);
         } else {
-          // コアキーワードのみを使用（最初のキーワードを優先）
-          const primaryKeyword = keywords[0];
-          const key = `${violation.type}_${primaryKeyword}`;
+          // 複数キーワードがある場合、全てをソートして連結（重複を防ぐ）
+          // 例: ['浸透', '殺菌'] → '薬機法違反_殺菌_浸透'
+          const sortedKeywords = keywords.sort().join('_');
+          const key = `${violation.type}_${sortedKeywords}`;
           if (!violationsByKeyword.has(key)) {
             violationsByKeyword.set(key, []);
           }
@@ -384,25 +510,55 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // 各グループから最も詳細な説明を持つ違反だけを残す
+      // 各グループから違反を統合（NG Keyword validator + Gemini の良い部分を結合）
       const uniqueViolations: typeof mergedViolations = [];
 
       for (const [key, violations] of violationsByKeyword.entries()) {
-        // 最も詳細な説明を持つ違反を選択（description.length が最大）
-        const best = violations.reduce((prev, current) => {
-          return current.description.length > prev.description.length ? current : prev;
-        });
+        if (violations.length === 1) {
+          // 重複なしの場合はそのまま追加
+          uniqueViolations.push(violations[0]);
+        } else {
+          // 重複がある場合は、インテリジェントマージを実行
+          // ソート: description が短い順（NG keyword validator が先に来る）
+          const sorted = violations.sort((a, b) => a.description.length - b.description.length);
 
-        uniqueViolations.push(best);
+          const shorter = sorted[0]; // NG keyword validator（簡潔な指摘・修正案）
+          const longer = sorted[sorted.length - 1]; // Gemini（詳細な根拠引用）
 
-        if (violations.length > 1) {
-          console.log(`[Duplicate Detection] Removed ${violations.length - 1} duplicates for keyword: ${key}`);
-          console.log(`[Duplicate Detection] Kept: "${best.description.substring(0, 80)}..."`);
+          // マージ判定: 両方が同じ type で、longer に詳細な referenceKnowledge.excerpt がある場合のみマージ
+          const shouldMerge =
+            shorter.type === longer.type &&
+            longer.referenceKnowledge &&
+            longer.referenceKnowledge.excerpt &&
+            longer.referenceKnowledge.excerpt.length > 50 && // 十分に詳細な excerpt
+            (
+              !shorter.referenceKnowledge ||
+              !shorter.referenceKnowledge.excerpt ||
+              shorter.referenceKnowledge.excerpt.length < longer.referenceKnowledge.excerpt.length
+            );
+
+          if (shouldMerge) {
+            // インテリジェントマージ: shorter の指摘・修正案 + longer の根拠引用
+            const merged = {
+              ...shorter, // ベースは shorter（簡潔な description と correctionSuggestion）
+              referenceKnowledge: longer.referenceKnowledge // Gemini の詳細な根拠引用
+            };
+
+            uniqueViolations.push(merged);
+            console.log(`[Duplicate Detection] 🔀 Merged ${violations.length} duplicates for keyword: ${key}`);
+            console.log(`[Duplicate Detection]   ✅ Used concise description from shorter violation`);
+            console.log(`[Duplicate Detection]   ✅ Used detailed reference from longer violation`);
+          } else {
+            // マージ不可の場合は shorter だけを保持（従来の動作）
+            uniqueViolations.push(shorter);
+            console.log(`[Duplicate Detection] Removed ${violations.length - 1} duplicates for keyword: ${key}`);
+            console.log(`[Duplicate Detection] Kept: "${shorter.description.substring(0, 80)}..."`);
+          }
         }
       }
 
       return {
-        ...evaluation,
+        ...geminiEvaluation,
         compliance: !hasViolations,
         violations: uniqueViolations
       };
@@ -475,6 +631,26 @@ function createBatchEvaluationPrompt(
   // セグメント一覧を生成（注釈分析の結果のみ含む）
   // Issue #30修正: NGキーワード検証結果はGeminiに渡さず、後で構造的にマージ
   const segmentsList = segments.map((seg, index) => {
+    // NGキーワード検証で既に検出されたキーワードをGeminiに通知（重複検出を防ぐ）
+    let ngKeywordInstructions = '';
+    if (ngValidationResults && ngValidationResults[index] && ngValidationResults[index].hasViolations) {
+      const detectedKeywords = seg.text.match(/浸透|殺菌|クマ|ヒアルロン酸|コラーゲン/g) || [];
+      if (detectedKeywords.length > 0) {
+        const uniqueKeywords = Array.from(new Set(detectedKeywords));
+        ngKeywordInstructions = `\n#### ✅ NG Keyword Validator検証済み（セグメント${index + 1}）\n\n`;
+        ngKeywordInstructions += `**以下のキーワードは既にNGキーワードvalidatorで検証済みです：** ${uniqueKeywords.join(', ')}\n\n`;
+        ngKeywordInstructions += `**【絶対厳守】** これらのキーワード、または、**これらのキーワードを含む任意の表現**については、NGキーワードvalidatorが既に注釈の有無を完全にチェック済みです。\n`;
+        ngKeywordInstructions += `**あなたはこれらのキーワードを含む表現について、一切違反を生成しないでください。**\n\n`;
+        ngKeywordInstructions += `**具体例（${uniqueKeywords[0] || '浸透'}の場合）:**\n`;
+        ngKeywordInstructions += `- ❌ 「${uniqueKeywords[0] || '浸透'}」→ 違反を生成しないでください（既に検証済み）\n`;
+        ngKeywordInstructions += `- ❌ 「${uniqueKeywords[0] || '浸透'}する」→ 違反を生成しないでください（既に検証済み）\n`;
+        ngKeywordInstructions += `- ❌ 「爪に${uniqueKeywords[0] || '浸透'}」→ 違反を生成しないでください（既に検証済み）\n`;
+        ngKeywordInstructions += `- ❌ 「${uniqueKeywords.join('・')}」→ 違反を生成しないでください（既に検証済み）\n`;
+        ngKeywordInstructions += `- ✅ これらのキーワードを含まない表現のみ評価してください\n\n`;
+        ngKeywordInstructions += `**理由:** 既に検出された違反は後で構造的にマージされます。重複報告は不要です。\n\n`;
+      }
+    }
+
     // Guinness検証結果の通知（期間以外の問題がある場合のみ）
     let guinnessInstructions = '';
     if (guinnessValidationResults && guinnessValidationResults[index]) {
@@ -498,7 +674,7 @@ function createBatchEvaluationPrompt(
 \`\`\`
 ${seg.text}
 \`\`\`
-${annotationInstructions}${guinnessInstructions}`;
+${ngKeywordInstructions}${annotationInstructions}${guinnessInstructions}`;
   }).join('\n');
 
   const fullTextSection = fullText ? `
@@ -546,6 +722,9 @@ ${productId === 'SH' ? `
 ` : ''}
 `;
 
+  // Note: ngKeywordGlobalWarning removed to reduce prompt length and avoid JSON parse errors
+  // Duplicate filtering is handled in post-processing (lines 267-310) which is more reliable
+
   return `
 あなたは広告表現の法務チェックの専門家です。以下の${segments.length}個のセグメントを厳密に評価してください。
 
@@ -566,13 +745,19 @@ ${segmentsList}
 - **「硬い爪」** - 爪水虫の典型的症状を暗示
 - **「汚い爪」** - 爪水虫の典型的症状を暗示
 - **「変形した爪」** - 爪水虫の典型的症状を暗示
+- **「ボロボロの爪」「ボロボロ爪」** - 爪水虫の典型的症状を暗示
+- **「変色した爪」「変色爪」** - 爪水虫の典型的症状を暗示
 
-**これらの表現が「悩む」「ケア」「対策」「キレイ」「清潔」などと組み合わされている場合、必ず薬機法違反として報告してください。**
+**【重要】検出条件:**
+- 上記の**具体的な症状表現**が含まれている場合のみ違反として検出してください
+- 一般的なマーケティング表現（「諦めている方」「放置している方」「悩んでいる方」など）は、上記の具体的症状表現を伴わない限り、違反として検出しないでください
 
 **具体例：**
 - ❌ 「ぶ厚い・硬い・汚い爪に悩む方へ」→ **薬機法違反**（爪水虫治療を想起）
 - ❌ 「硬い爪をキレイにする」→ **薬機法違反**（爪水虫治療を想起）
 - ❌ 「変形した爪のケア」→ **薬機法違反**（爪水虫治療を想起）
+- ✅ 「諦めて放置している方」→ **違反ではない**（具体的症状表現なし）
+- ✅ 「爪のケアを諦めている方」→ **違反ではない**（具体的症状表現なし）
 
 **違反報告時の記載：**
 - type: "薬機法違反"
@@ -746,24 +931,45 @@ ${knowledgeContext}
 **知識ベースの明確な記載:**
 「No.1、世界初、日本初などの表記」にはエビデンスの記載が必要（37_エビデンス表記について.txt）
 
+**【重要】検出対象の明確化:**
+このルールは、以下の**明示的な表現が実際にテキスト内に含まれている場合のみ**適用してください:
+- 「1位」「No.1」「ナンバーワン」「トップ」「ランキング」
+- 「日本初」「世界初」「業界初」
+- これらの文字列が**実際にテキスト内に存在する場合のみ**違反を報告してください
+
+**【重要】検出対象外（誤検知防止）:**
+以下は単なる販売実績であり、ランキング・No.1表示ではありません。これらは違反として報告しないでください:
+- ❌ 誤検知例: 「累計250万本突破」→ これは販売実績であり、「No.1」ではない
+- ❌ 誤検知例: 「累計○○本販売」→ これは販売実績であり、「ランキング」ではない
+- ✅ 正しい検出: テキストに「1位」「No.1」などの文字が実際に含まれている場合のみ
+
 **判定ルール:**
-1. 「1位」「No.1」「ランキング」「日本初」「世界初」などの表現を見つけた場合:
+1. **まず、テキスト内に「1位」「No.1」「ランキング」「日本初」「世界初」などの文字列が実際に存在するか確認**
+2. これらの表現が実際に含まれている場合:
    - 具体的なエビデンス（いつ、どこで、何の調査で）が記載されているか確認
    - エビデンスの記載がない場合は**優良誤認として違反報告**してください
+3. これらの表現が含まれていない場合:
+   - 違反として報告しないでください（誤検知防止）
 
-2. エビデンスが必要な表現例:
-   - 「Amazon・楽天で1位を獲得」→ いつ、どのカテゴリで1位だったか明記が必要
-   - 「No.1売上」→ いつ、どの市場で、どの調査で1位だったか明記が必要
-   - 「日本初」「世界初」→ 何が初なのか、根拠資料の明記が必要
+**エビデンスが必要な表現例:**
+- 「Amazon・楽天で1位を獲得」→ いつ、どのカテゴリで1位だったか明記が必要
+- 「No.1売上」→ いつ、どの市場で、どの調査で1位だったか明記が必要
+- 「日本初」「世界初」→ 何が初なのか、根拠資料の明記が必要
+
+**【絶対厳守】ハルシネーション（幻覚）防止:**
+- 違反を報告する際は、**必ず実際のテキストから正確に引用**してください
+- テキストに存在しない表現を報告してはいけません
+- description には**実際のテキストに含まれる表現のみ**を記載してください
 
 **具体例:**
-- ❌ 「Amazon・楽天で1位を獲得した人気商品です」→ エビデンス不明（優良誤認）
+- ❌ 「Amazon・楽天で1位を獲得した人気商品です」（テキストに含まれている場合）→ エビデンス不明（優良誤認）
 - ✅ 「Amazon・楽天で1位を獲得※ ※2024年6月 スキンケアカテゴリ（Amazon調べ）」→ OK
+- ✅ 「累計250万本突破」→ **違反ではない**（単なる販売実績、「No.1」ではない）
 
 **違反報告時の記載:**
 - type: 「景表法違反」
 - severity: 「high」
-- description: 「1位」「No.1」等の表示にはエビデンス（いつ、どこで、何の調査で）の記載が必須
+- description: 必ず**実際のテキストから正確に引用**した上で、「1位」「No.1」等の表示にはエビデンス（いつ、どこで、何の調査で）の記載が必須と記載
 - referenceKnowledge: knowledge/common/37_エビデンス表記について.txt
 
 ## 出力形式

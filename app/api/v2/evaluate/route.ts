@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
 
         const ragResult = await ragSearchService.search(combinedSegmentText, {
           topK: 20,
-          minSimilarity: 0.5,
+          minSimilarity: 0.3, // Lowered from 0.5 to 0.3 for better recall with cosine distance
           productId: validatedInput.productId,
           debug: true,
         });
