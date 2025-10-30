@@ -1,68 +1,70 @@
 # デプロイガイド
 
-**本番環境デプロイ完全マニュアル（Koyeb対応）**
+**本番環境デプロイ完全マニュアル（Railway対応）**
 
 ## デプロイ方法一覧
 
 | 方法 | 推奨度 | 難易度 | 費用 | 用途 |
 |------|--------|--------|------|------|
-| **Koyeb** | ⭐⭐⭐ | 簡単 | $7〜/月 | 本番環境（推奨） |
+| **Railway** | ⭐⭐⭐ | 簡単 | $5〜/月 | 本番環境（推奨） |
 | **Docker Compose** | ⭐⭐ | 中級 | 自前サーバー費用 | 社内サーバー運用 |
 | **ローカル開発** | ⭐ | 簡単 | 無料 | 開発・テスト |
 
 ---
 
-## 1. Koyebデプロイ（推奨）
+## 1. Railwayデプロイ（推奨）
 
 ### 1.1 事前準備
 
 **必要なもの**:
-- Koyebアカウント（https://www.koyeb.com/）
+- Railwayアカウント（https://railway.app/）
 - GitHubアカウント（ryu220/kitanoadcheckerへのアクセス権限）
 - Gemini API Key（ローカルでのVector DB初期化用）
 
 ### 1.2 ChromaDBサービス作成
 
-1. **Koyebダッシュボードにログイン**
+1. **Railwayダッシュボードにログイン**
 
-2. **新しいServiceを作成**
-   - 「Create Service」をクリック
-   - 「Docker」を選択
+2. **新しいProjectを作成**
+   - 「New Project」をクリック
+   - 「Empty Project」を選択
 
-3. **ChromaDB設定**
+3. **ChromaDB Serviceを追加**
+   - 「+ New」をクリック
+   - 「Docker Image」を選択
+
+4. **ChromaDB設定**
    ```
-   Service name: kitanoadchecker-chroma
+   Service name: chroma
    Docker image: chromadb/chroma:0.5.23
    Port: 8000
-   Instance type: Small (512MB RAM推奨)
-   Region: Frankfurt (or Tokyo)
    ```
 
-4. **環境変数設定**
+5. **環境変数設定**
    ```bash
    ALLOW_RESET=true
    IS_PERSISTENT=true
    ```
 
-5. **Persistent Storage設定**
-   - Volume: `/chroma/chroma` (1GB)
-   - これでChromaDBのデータが永続化されます
+6. **Volume設定（データ永続化）**
+   - Settings → Volumes
+   - Add Volume: `/chroma/chroma`
+   - Size: 1GB
 
-6. **デプロイ実行**
-   - 「Deploy」をクリック
+7. **デプロイ実行**
+   - 自動的にデプロイが開始されます
    - 3〜5分でChromaDBが起動します
 
-7. **Internal URLをメモ**
+8. **Internal URLをメモ**
    ```
-   例: kitanoadchecker-chroma.koyeb.app:8000
-   または内部URL: kitanoadchecker-chroma-xxxxx.koyeb.svc.cluster.local:8000
+   例: chroma.railway.internal:8000
    ```
 
 ### 1.3 アプリケーションサービス作成
 
-1. **新しいServiceを作成**
-   - 「Create Service」をクリック
-   - 「GitHub」を選択
+1. **GitHub Serviceを追加**
+   - 同じProject内で「+ New」をクリック
+   - 「GitHub Repo」を選択
 
 2. **GitHubリポジトリ連携**
    ```
@@ -70,20 +72,12 @@
    Branch: main
    ```
 
-3. **Build設定**
-   ```
-   Build command: npm install
-   Start command: npm start
-   Dockerfile: Dockerfile（自動検出）
-   ```
+3. **環境変数設定**
+   - Settings → Variables
 
-4. **環境変数設定**
    ```bash
    # ChromaDB接続先（必須）
-   CHROMA_URL=http://kitanoadchecker-chroma.koyeb.app:8000
-
-   # または内部URL（推奨 - 高速）
-   CHROMA_URL=http://kitanoadchecker-chroma-xxxxx.koyeb.svc.cluster.local:8000
+   CHROMA_URL=http://chroma.railway.internal:8000
 
    # Gemini API Key（本番では不要 - ユーザーがUI経由で提供）
    # GEMINI_API_KEY=（設定しない）
@@ -92,32 +86,28 @@
    NODE_ENV=production
    ```
 
-5. **ポート設定**
-   ```
-   Port: 3000
-   ```
+4. **Build & Start設定**
+   - Settings → Build
+   - Build Command: `npm install`
+   - Start Command: `npm start`
 
-6. **Instance設定**
-   ```
-   Instance type: Small (512MB RAM)以上
-   Instances: 1〜2（負荷に応じて）
-   Region: Frankfurt（ChromaDBと同じリージョン推奨）
-   ```
+5. **ポート設定**
+   - Railwayが自動的にPORTを設定（通常3000）
+
+6. **公開ドメイン設定**
+   - Settings → Networking
+   - 「Generate Domain」をクリック
+   - 公開URLが生成されます（例: kitanoadchecker-production.up.railway.app）
 
 7. **デプロイ実行**
-   - 「Deploy」をクリック
-   - 5〜10分でビルド・デプロイ完了
-
-8. **公開URLを確認**
-   ```
-   例: https://kitanoadchecker-xxxxx.koyeb.app
-   ```
+   - 自動的にビルド・デプロイが開始されます
+   - 5〜10分でデプロイ完了
 
 ### 1.4 Vector DB初期化（初回のみ）
 
 **重要**: 本番環境でVector DBを初期化する必要があります。
 
-#### 方法1: ローカルから初期化（推奨）
+#### ローカルから初期化（推奨）
 
 ```bash
 # 1. ローカル環境でリポジトリをクローン
@@ -129,7 +119,9 @@ npm install
 
 # 3. 環境変数設定
 export GEMINI_API_KEY=your_gemini_api_key
-export CHROMA_URL=http://kitanoadchecker-chroma.koyeb.app:8000
+export CHROMA_URL=http://chroma.railway.internal:8000
+# ⚠️ 注意: railway.internalはRailway内部からのみアクセス可能
+# 外部からアクセスする場合は公開URLを使用
 
 # 4. Vector DB初期化実行（10〜15分）
 npm run setup:vector-db
@@ -139,20 +131,27 @@ npm run setup:vector-db
 # ✅ Total chunks: ~5,129
 ```
 
-#### 方法2: Koyeb Web Shell経由（上級者向け）
+#### Railway CLI経由（上級者向け）
 
-1. Koyebダッシュボード → アプリケーションService → 「Shell」タブ
-2. シェルで実行:
-   ```bash
-   cd /app
-   GEMINI_API_KEY=your_key npm run setup:vector-db
-   ```
+```bash
+# Railway CLIインストール
+npm install -g @railway/cli
+
+# ログイン
+railway login
+
+# プロジェクト選択
+railway link
+
+# コマンド実行
+railway run npm run setup:vector-db
+```
 
 ### 1.5 動作確認
 
 1. **公開URLにアクセス**
    ```
-   https://kitanoadchecker-xxxxx.koyeb.app
+   https://kitanoadchecker-production.up.railway.app
    ```
 
 2. **Web UIで確認**
@@ -171,7 +170,7 @@ npm run setup:vector-db
 
 4. **ヘルスチェック**
    ```bash
-   curl https://kitanoadchecker-xxxxx.koyeb.app/api/health
+   curl https://kitanoadchecker-production.up.railway.app/api/health
 
    # 期待レスポンス:
    {
@@ -279,14 +278,14 @@ http://localhost:3000
 
 **解決策**:
 ```bash
-# 1. ChromaDB起動確認
-curl http://kitanoadchecker-chroma.koyeb.app:8000/api/v1/heartbeat
+# 1. ChromaDB起動確認（Railway）
+# Railway Dashboard → chroma service → Logs
 
 # 2. 環境変数確認
 echo $CHROMA_URL
 
-# 3. Internal URL使用（Koyeb内部）
-CHROMA_URL=http://kitanoadchecker-chroma-xxxxx.koyeb.svc.cluster.local:8000
+# 3. Internal URL使用確認
+CHROMA_URL=http://chroma.railway.internal:8000
 ```
 
 ### 5.2 Vector DBにデータがない
@@ -296,7 +295,7 @@ CHROMA_URL=http://kitanoadchecker-chroma-xxxxx.koyeb.svc.cluster.local:8000
 **解決策**:
 ```bash
 # ローカルから初期化実行
-export CHROMA_URL=http://kitanoadchecker-chroma.koyeb.app:8000
+export CHROMA_URL=http://chroma.railway.internal:8000
 export GEMINI_API_KEY=your_key
 npm run setup:vector-db
 ```
@@ -332,8 +331,8 @@ npm install
 
 **解決策**:
 ```bash
-# Koyeb Instance typeをアップグレード
-Small (512MB) → Medium (1GB) → Large (2GB)
+# Railway Settingsでメモリ増量
+512MB → 1GB → 2GB
 
 # または環境変数で調整
 NODE_OPTIONS=--max-old-space-size=1024
@@ -374,21 +373,21 @@ NODE_OPTIONS=--max-old-space-size=1024
 ### 7.1 負荷に応じたスケーリング
 
 ```bash
-# Koyeb Auto Scaling設定
-Min instances: 1
-Max instances: 3
-CPU threshold: 70%
-Memory threshold: 80%
+# Railway Auto Scaling
+# Settings → Deployment → Replicas
+Min replicas: 1
+Max replicas: 3
 ```
 
 ### 7.2 ChromaDBの最適化
 
 ```bash
-# Persistent Storage拡張
-Volume size: 1GB → 5GB（ナレッジ追加時）
+# Volume拡張
+Settings → Volumes → Resize
+1GB → 5GB（ナレッジ追加時）
 
-# Instance type upgrade
-Small (512MB) → Medium (1GB)
+# Memory増量
+512MB → 1GB
 ```
 
 ### 7.3 キャッシュ戦略
@@ -444,7 +443,7 @@ const allowedOrigins = ['https://yourdomain.com'];
 npm run backup:vector-db
 
 # または手動
-curl http://kitanoadchecker-chroma.koyeb.app:8000/api/v1/dump > chroma-backup.json
+curl http://chroma.railway.internal:8000/api/v1/dump > chroma-backup.json
 ```
 
 ### 9.2 リストア
@@ -458,13 +457,13 @@ npm run setup:vector-db:clear
 
 ## 10. コスト試算
 
-### Koyeb（推奨構成）
+### Railway（推奨構成）
 
 | リソース | スペック | 月額費用 |
 |---------|---------|---------|
-| ChromaDB | Small (512MB) | $7 |
-| アプリケーション | Small (512MB) | $7 |
-| **合計** | | **$14/月** |
+| ChromaDB | 512MB RAM, 1GB Volume | $5 |
+| アプリケーション | 512MB RAM | $5 |
+| **合計** | | **$10/月** |
 
 ### 自前サーバー（Docker Compose）
 
@@ -485,4 +484,4 @@ npm run setup:vector-db:clear
 
 **バージョン**: v1.0
 **最終更新**: 2025年10月30日
-**対応プラットフォーム**: Koyeb, Docker Compose, ローカル開発
+**対応プラットフォーム**: Railway, Docker Compose, ローカル開発

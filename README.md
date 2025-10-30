@@ -47,7 +47,7 @@
 - **AI/ML**: Google Gemini API (gemini-2.5-flash-lite)
 - **Embedding**: text-embedding-004 (vectorization)
 - **言語**: TypeScript (strict mode)
-- **デプロイ**: Koyeb / Docker Compose対応
+- **デプロイ**: Railway / Docker Compose対応
 
 ## クイックスタート
 
@@ -177,20 +177,20 @@ curl -X POST http://localhost:3000/api/v2/evaluate-batch \
 
 ## 本番デプロイ
 
-### Koyeb（推奨）
+### Railway（推奨）
 
-本システムはKoyebでの本番デプロイに対応しています。詳細な手順は [デプロイガイド](docs/delivery/08_DEPLOYMENT_GUIDE.md) を参照。
+本システムはRailwayでの本番デプロイに対応しています。詳細な手順は [デプロイガイド](docs/delivery/08_DEPLOYMENT_GUIDE.md) を参照。
 
 #### クイックスタート:
 
-1. **Koyebアカウント作成** - https://www.koyeb.com/
+1. **Railwayアカウント作成** - https://railway.app/
 2. **GitHubリポジトリ連携** - ryu220/kitanoadcheckerを連携
 3. **ChromaDBサービス追加** - Docker Serviceとして追加
 4. **環境変数設定**
    - `CHROMA_URL`: ChromaDBサービスのinternal URL
    - `GEMINI_API_KEY`: 本番環境では**不要**（ユーザーがUI経由で提供）
 5. **デプロイ実行** - 自動ビルド・デプロイ
-6. **Vector DB初期化（初回のみ）** - `/api/v2/admin/init-vector-db` エンドポイント実行
+6. **Vector DB初期化（初回のみ）** - ローカルから実行
 
 ### Docker Compose（ローカル本番環境）
 
@@ -289,7 +289,7 @@ MIT License
 - ✅ **62種NGキーワード**: 絶対NG(28) + 条件付NG(27) + 文脈依存(7)
 - ✅ **ランキング表現検出**: 「1位」「NO.1」等のエビデンス必須表現を自動検出（Issue #36対応）
 - ✅ **Web UI + API**: フロントエンドとバックエンドAPI両対応
-- ✅ **本番環境対応**: Koyeb/Dockerデプロイ対応
+- ✅ **本番環境対応**: Railway/Dockerデプロイ対応
 - ✅ **完全ドキュメント**: セットアップから運用まで9種類の納品ドキュメント完備
 
 ---
