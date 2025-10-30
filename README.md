@@ -2,6 +2,22 @@
 
 **広告文が法的規制（薬機法、景表法等）に準拠しているかを自動チェックする本番環境対応システム**
 
+---
+
+## 📦 納品物の所在
+
+| 納品物 | ファイル・ディレクトリ | 説明ドキュメント |
+|--------|---------------------|-----------------|
+| **1. 環境設定一式**<br>（シークレット管理含む） | `.env.example`<br>`package.json`<br>`docker-compose.yml`<br>`Dockerfile` | [02_SETUP_GUIDE.md](docs/delivery/02_SETUP_GUIDE.md)<br>[08_DEPLOYMENT_GUIDE.md](docs/delivery/08_DEPLOYMENT_GUIDE.md) |
+| **2. プロンプト群・NGワード等** | `lib/prompts/evaluation-prompt-command-stack.ts` (481行)<br>`lib/ng-keywords/absolute-ng.ts` (28種)<br>`lib/ng-keywords/conditional-ng.ts` (27種)<br>`lib/ng-keywords/context-dependent-ng.ts` (7種)<br>`config/products/HA.json`<br>`config/products/SH.json` | [00_DELIVERY_PACKAGE_MAP.md](docs/delivery/00_DELIVERY_PACKAGE_MAP.md)<br>§3 プロンプト群・ルール設定 |
+| **3. ナレッジベース**<br>（Railway構成・バッチ処理） | `knowledge/` (130ファイル、5.13MB)<br>  ├ `common/` (120ファイル)<br>  ├ `HA/` (7ファイル)<br>  └ `SH/` (3ファイル)<br>`scripts/setup-vector-db.ts` | [00_DELIVERY_PACKAGE_MAP.md](docs/delivery/00_DELIVERY_PACKAGE_MAP.md)<br>§4 ナレッジベース<br>[08_DEPLOYMENT_GUIDE.md](docs/delivery/08_DEPLOYMENT_GUIDE.md)<br>§1.4 Vector DB初期化 |
+| **4. 代表テストケース**<br>（入出力例15パターン） | `docs/delivery/07_TEST_CASES.md` (365行)<br>  - ランキング表現<br>  - ギネス期間検証<br>  - 保証表現<br>  - 医師推奨表現<br>  - クマ・浸透表現 等 | [07_TEST_CASES.md](docs/delivery/07_TEST_CASES.md) |
+| **5. デプロイ手順**<br>（Railwayアカウント再現） | `docs/delivery/08_DEPLOYMENT_GUIDE.md` (487行)<br>  - Railway Project作成<br>  - ChromaDB Service設定<br>  - 環境変数設定<br>  - Vector DB初期化<br>  - 動作確認手順 | [08_DEPLOYMENT_GUIDE.md](docs/delivery/08_DEPLOYMENT_GUIDE.md) |
+
+**📌 詳細はすべて [docs/delivery/00_DELIVERY_PACKAGE_MAP.md](docs/delivery/00_DELIVERY_PACKAGE_MAP.md) に記載されています**
+
+---
+
 ## 🎯 システム概要
 
 このシステムは、**RAG（Retrieval-Augmented Generation）技術**と**4層チェックエンジン**を活用し、広告文を「主張(Claim)」単位でインテリジェントに分割し、網羅的かつ正確な法令・自社基準遵守チェックを実現します。
