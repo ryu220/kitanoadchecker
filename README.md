@@ -296,7 +296,7 @@ MIT License
 
 ## 🏢 プロジェクト情報
 
-**開発元**: 北野プロジェクト
+**開発元**: 株式会社EptaEight
 **バージョン**: v1.0
 **納品日**: 2025年10月30日
 **リポジトリ**: https://github.com/ryu220/kitanoadchecker
