@@ -13,6 +13,7 @@
 | **3. ナレッジベース**<br>（Railway構成・バッチ処理） | `knowledge/` (130ファイル、5.13MB)<br>  ├ `common/` (120ファイル)<br>  ├ `HA/` (7ファイル)<br>  └ `SH/` (3ファイル)<br>`scripts/setup-vector-db.ts` | [00_DELIVERY_PACKAGE_MAP.md](docs/delivery/00_DELIVERY_PACKAGE_MAP.md)<br>§4 ナレッジベース<br>[08_DEPLOYMENT_GUIDE.md](docs/delivery/08_DEPLOYMENT_GUIDE.md)<br>§1.4 Vector DB初期化 |
 | **4. 代表テストケース**<br>（入出力例15パターン） | `docs/delivery/07_TEST_CASES.md` (365行)<br>  - ランキング表現<br>  - ギネス期間検証<br>  - 保証表現<br>  - 医師推奨表現<br>  - クマ・浸透表現 等 | [07_TEST_CASES.md](docs/delivery/07_TEST_CASES.md) |
 | **5. デプロイ手順**<br>（Railwayアカウント再現） | `docs/delivery/08_DEPLOYMENT_GUIDE.md` (487行)<br>  - Railway Project作成<br>  - ChromaDB Service設定<br>  - 環境変数設定<br>  - Vector DB初期化<br>  - 動作確認手順 | [08_DEPLOYMENT_GUIDE.md](docs/delivery/08_DEPLOYMENT_GUIDE.md) |
+| **6. ナレッジベースの追加方法** | `knowledge/` ディレクトリ<br>`scripts/setup-vector-db.ts`<br>`npm run setup:vector-db:clear` | [00_DELIVERY_PACKAGE_MAP.md](docs/delivery/00_DELIVERY_PACKAGE_MAP.md)<br>§4.2 ナレッジ追加・更新 |
 
 **📌 詳細はすべて [docs/delivery/00_DELIVERY_PACKAGE_MAP.md](docs/delivery/00_DELIVERY_PACKAGE_MAP.md) に記載されています**
 
